@@ -1,0 +1,20 @@
+#tabgroupsbtn-menu-button > image {
+	display: none;
+}
+#tabgroupsbtn-menu-button > label.toolbarbutton-text {
+	display: -moz-box;
+	font-weight: bold;
+}
+
+#tabgroupsbtn-close-button {
+	margin-top: 1px;
+	margin-left: 0;
+	margin-right: 0;
+	border: 0;
+}
+
+#tabgroupsbtn-new-button {
+	margin: 0 !important;
+	border-left: 1px solid #CCC;
+	-moz-image-region: rect(0px, 30px, 24px, 4px);
+}
