@@ -44,7 +44,7 @@ function addEventListener(win) {
 
 function processWindow(win) {
 	win.TabView._initFrame(function() {
-		addToolbarButtons(win);
+		updateGroup(win, getActiveGroup(win));
 		addTabContextMenu(win);
 		addLinkContextMenu(win);
 		addEventListener(win);
@@ -61,6 +61,7 @@ function startup(data, reason) {
 	ss.loadAndRegisterSheet(ssuri, ss.AUTHOR_SHEET);
 	unload(() => ss.unregisterSheet(ssuri, ss.AUTHOR_SHEET));
 
+	registerToolbarButtons();
 	watchWindows(processWindow, "navigator:browser");
 }
 function shutdown(data, reason) unload();

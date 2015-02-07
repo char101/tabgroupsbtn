@@ -27,7 +27,7 @@ function showMoveToGroupMenu(win, popup) {
 	if (getActiveGroup(win).getChildren().length > 1) {
 		popup.appendChild(createElement(doc, "menuseparator"));
 
-		let mi = createElement(doc, "menuitem", {value: -1, label: "New Group"}, {command: e => moveTabToNewGroup(win, tab)});
+		let mi = createElement(doc, "menuitem", {label: "New Group"}, {command: e => moveTabToNewGroup(win, tab)});
 		popup.appendChild(mi);
 	}
 }
@@ -41,7 +41,7 @@ function addTabContextMenu(win) {
 	menu.appendChild(popup);
 
 	let tabcontextmenu = doc.getElementById("tabContextMenu");
-	tabcontextmenu.appendChild(menu);
+	tabcontextmenu.insertBefore(menu, doc.getElementById("context_openTabInWindow").nextSibling);
 	unload(() => tabcontextmenu.removeChild(menu));
 
 	let tabviewmenu = doc.getElementById("context_tabViewMenu");

@@ -38,8 +38,10 @@ function addLinkContextMenu(win) {
 
 	let context = doc.getElementById("contentAreaContextMenu");
 	context.insertBefore(mi, doc.getElementById("context-openlink"));
+
 	let onpopupshowing = e => win.gContextMenu.showItem("tabgroupsbtn-openlink", win.gContextMenu.onSaveableLink);
 	context.addEventListener("popupshowing", onpopupshowing, false);
+
 	unload(() => {
 		context.removeEventListener("popupshowing", onpopupshowing, false);
 		context.removeChild(mi)

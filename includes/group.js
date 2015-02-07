@@ -54,9 +54,10 @@ function closeGroup(win, groupid) {
 	getGroup(win, groupid).destroy({immediately: true});
 }
 
-function renameGroup(win) {
+function renameGroup() {
+	let win = getActiveWindow();
 	let group = getActiveGroup(win);
-	let name = prompt(win, "Rename Tab Group", "Tab Group Name:", group.getTitle());
+	let name = prompt("Rename Tab Group", "Tab Group Name:", group.getTitle());
 	if (name) {
 		group.setTitle(name);
 		updateGroup(win, group);

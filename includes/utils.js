@@ -1,3 +1,7 @@
+const FM = Cc["@mozilla.org/focus-manager;1"].getService(Ci.nsIFocusManager);
+
+function getActiveWindow() FM.activeWindow;
+
 function getGroupItems(win) win.TabView.getContentWindow().GroupItems;
 function getGroup(win, groupid) getGroupItems(win).groupItem(groupid);
 function getActiveGroup(win) getGroupItems(win).getActiveGroupItem();
@@ -27,20 +31,19 @@ function appendChild(parent, ...children) {
 		parent.appendChild(child);
 }
 
-function prompt(win, title, text, value) {
+function prompt(title, text, value) {
 	let ps = Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService);
 	let input = {value: value};
 	let check = {value: false};
-	if (ps.prompt(win, title, text, input, null, check))
+	if (ps.prompt(getActiveWindow(), title, text, input, null, check))
 		return input.value;
 }
-function confirm(win, title, text) Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService).confirm(win, title, text);
-function alert(win, title, text) Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService).alert(win, title, text);
+function confirm(title, text) Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService).confirm(getActiveWindow(), title, text);
+function alert(title, text) Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService).alert(getActiveWindow(), title, text);
 
 function isPending(tab) tab.hasAttribute("pending");
 function isBlank(win, tab) {
 	let uri = win.gBrowser.getBrowserForTab(tab).currentURI.spec;
-	console.log(tab.getAttribute("pending") + " " + uri);
 	return uri == "about:blank" || uri == "about:newtab" || uri == "about:privatebrowsing";
 }
 

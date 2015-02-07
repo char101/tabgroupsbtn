@@ -1,8 +1,13 @@
 Cu.import("resource:///modules/CustomizableUI.jsm");
 
-function updateGroup(win, group) win.document.getElementById("tabgroupsbtn-menu-button").setAttribute("label", getGroupTitle(group))
+function updateGroup(win, group) {
+	let widget = win.document.getElementById("tabgroupsbtn-menu-button");
+	if (widget)
+		widget.setAttribute("label", getGroupTitle(group));
+}
 
-function showGroups(win, menu) {
+function showGroups(menu) {
+	let win = getActiveWindow();
 	let GI = getGroupItems(win);
 
 	let doc = win.document;
@@ -26,29 +31,29 @@ function showGroups(win, menu) {
 	}
 }
 
-function addToolbarButtons(win) {
+function registerToolbarButtons() {
 	CustomizableUI.createWidget({
 		id: "tabgroupsbtn-toolbaritem",
 		type: "custom",
 		label: "Tab Groups Button",
 		defaultArea: CustomizableUI.AREA_NAVBAR,
 		onBuild(doc) {
+			// no active window
 			let menubtn = createElement(doc, "toolbarbutton", {
 				id: "tabgroupsbtn-menu-button",
 				type: "menu",
 				class: "toolbarbutton-1",
-				label: getGroupTitle(getGroupItems(win).getActiveGroupItem()),
 			}, {
 				click: event => {
 					if (event.button === 2) { // right click
 						event.preventDefault();
 						event.stopPropagation();
-						renameGroup(win);
+						renameGroup();
 					}
 				},
 			});
 
-			let menu = createElement(doc, "menupopup", null, {popupshowing: event => showGroups(win, event.target)});
+			let menu = createElement(doc, "menupopup", null, {popupshowing: event => showGroups(event.target)});
 			menubtn.appendChild(menu);
 
 			let closebtn = createElement(doc, "toolbarbutton", {
@@ -56,11 +61,14 @@ function addToolbarButtons(win) {
 				class: "toolbarbutton-1",
 				image: "chrome://tabgroupsbtn/content/close.png"
 			}, {command: event => {
+				let win = getActiveWindow();
+				if (getGroupItems(win).groupItems.length == 1)
+					return;
 				let group = getActiveGroup(win);
 				let title = getGroupTitle(group);
 				let ntabs = group.getChildren().length;
 				let s = ntabs > 1 ? 's' : '';
-				if (confirm(win, "Confirm Close Tab Group", `You are about to close tab group ${title} (${ntabs} tab${s}). Are you sure you want to continue?`))
+				if (confirm("Confirm Close Tab Group", `You are about to close tab group ${title} (${ntabs} tab${s}). Are you sure you want to continue?`))
 					closeGroup(win, getActiveGroup(win).id);
 			}});
 
@@ -68,7 +76,7 @@ function addToolbarButtons(win) {
 				id: "tabgroupsbtn-new-button",
 				class: "toolbarbutton-1",
 				image: "chrome://tabgroupsbtn/content/new.png"
-			}, {command: event => createGroup(win)});
+			}, {command: event => createGroup(getActiveWindow())});
 
 			let ti = createElement(doc, "toolbaritem", {id: "tabgroupsbtn-toolbaritem"});
 			appendChild(ti, menubtn, closebtn, newbtn);
@@ -86,7 +94,7 @@ function addToolbarButtons(win) {
 			setPref("customized", true);
 	};
 	let listener = {
-		onWidgetAdded: (widget, area, position) => setCustomized(widget),
+		onWidgetAdded: (widget, area, position) => { console.log("widget added"); setCustomized(widget) },
 		onWidgetMoved: (widget, area, oldpos, newpos) => setCustomized(widget),
 		onWidgetRemoved: (widget, area) => setCustomized(widget)
 	};
