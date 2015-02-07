@@ -2,8 +2,11 @@ Cu.import("resource:///modules/CustomizableUI.jsm");
 
 function updateGroup(win, group) {
 	let widget = win.document.getElementById("tabgroupsbtn-menu-button");
-	if (widget)
-		widget.setAttribute("label", getGroupTitle(group));
+	if (widget) {
+		let title = getGroupTitle(group);
+		title = title.replace(/:/g, ' | ');
+		widget.setAttribute("label", title);
+	}
 }
 
 function showGroups(menu) {
@@ -11,8 +14,22 @@ function showGroups(menu) {
 	let doc = win.document;
 
 	clearPopup(menu)
+	let separatoradded = false;
+	let prevtitle = null;
 	for (let gr of getGroupList(win)) {
 		let [id, title, active, group] = gr;
+
+		let origtitle = title;
+		if (prevtitle !== null && title.startsWith(prevtitle + ":")) {
+			title = "   ".repeat((prevtitle.match(/:/g) || []).length + 1) + title.substring(prevtitle.length + 1);
+		}
+		prevtitle = origtitle;
+
+		if (! separatoradded && group.getTitle() === "") {
+			menu.appendChild(doc.createElement("menuseparator"));
+			separatoradded = true;
+		}
+
 		let mi = createElement(doc, "menuitem", {
 			value: id,
 			class: "menuitem-iconic",
@@ -77,7 +94,16 @@ function registerToolbarButtons() {
 				id: "tabgroupsbtn-new-button",
 				class: "toolbarbutton-1",
 				image: "chrome://tabgroupsbtn/content/new.png"
-			}, {command: event => createGroup(getActiveWindow())});
+			}, {
+				command: event => createGroup(getActiveWindow()),
+				click: event => {
+					if (event.button === 2) { // right click
+						event.preventDefault();
+						event.stopPropagation();
+						createSubGroup(getActiveWindow());
+					}
+				}
+			});
 
 			let ti = createElement(doc, "toolbaritem", {id: "tabgroupsbtn-toolbaritem"});
 			appendChild(ti, menubtn, closebtn, newbtn);

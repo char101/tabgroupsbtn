@@ -18,7 +18,13 @@ function getGroupList(win) {
 	let activegroup = GI.getActiveGroupItem();
 	for (let gi of GI.groupItems)
 		groups.push([gi.id, getGroupTitle(gi), gi == activegroup, gi]);
-	groups.sort((a, b) => a[1].toLowerCase().localeCompare(b[1].toLowerCase()));
+	// sort by has title first then by title
+	groups.sort((a, b) => {
+		let r = (a[3].getTitle() === "") - (b[3].getTitle() === "");
+		if (r === 0)
+			r = a[1].toLowerCase().localeCompare(b[1].toLowerCase());
+		return r;
+	});
 	return groups;
 }
 

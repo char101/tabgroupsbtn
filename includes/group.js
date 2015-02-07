@@ -21,9 +21,23 @@ function selectGroup(win, groupid) {
 	}
 }
 
-function createGroup(win) {
-	getGroupItems(win).newGroup().newTab();
+function createGroup(win, title) {
+	let group = getGroupItems(win).newGroup();
+	if (title !== undefined)
+		group.setTitle(title);
+	group.newTab();
 	win.document.getElementById("urlbar").focus();
+}
+
+function createSubGroup(win) {
+	let title = getActiveGroup(win).getTitle();
+	if (title === "") {
+		createGroup();
+	} else {
+		let subtitle = prompt(`New Subgroup of ${title}`, "Enter subtitle:");
+		if (subtitle)
+			createGroup(win, `${title}:${subtitle}`);
+	}
 }
 
 function closeGroup(win, groupid) {
