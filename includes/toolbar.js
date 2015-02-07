@@ -35,6 +35,7 @@ function registerToolbarButtons() {
 		id: "tabgroupsbtn-toolbaritem",
 		type: "custom",
 		label: "Tab Groups Button",
+		tooltiptext: "Tab Groups Button",
 		defaultArea: CustomizableUI.AREA_NAVBAR,
 		onBuild(doc) {
 			// no active window
@@ -42,6 +43,7 @@ function registerToolbarButtons() {
 				id: "tabgroupsbtn-menu-button",
 				type: "menu",
 				class: "toolbarbutton-1",
+				label: "Tab Groups Button"
 			}, {
 				click: event => {
 					if (event.button === 2) { // right click
@@ -93,9 +95,19 @@ function registerToolbarButtons() {
 			setPref("customized", true);
 	};
 	let listener = {
-		onWidgetAdded: (widget, area, position) => { console.log("widget added"); setCustomized(widget) },
+		onWidgetAdded: (widget, area, position) => {
+			setCustomized(widget);
+			let win = getActiveWindow();
+			if (win)
+				updateGroup(win, getActiveGroup(win));
+		},
 		onWidgetMoved: (widget, area, oldpos, newpos) => setCustomized(widget),
-		onWidgetRemoved: (widget, area) => setCustomized(widget)
+		onWidgetRemoved: (widget, area) => {
+			setCustomized(widget);
+			let win = getActiveWindow();
+			if (win)
+				win.document.getElementById("tabgroupsbtn-toolbaritem").setAttribute("label", "Tab Groups Button");
+		}
 	};
 	CustomizableUI.addListener(listener);
 	unload(() => CustomizableUI.removeListener(listener));

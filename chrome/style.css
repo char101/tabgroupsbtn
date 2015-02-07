@@ -18,3 +18,8 @@
 	padding-right: 2px !important;
 	border-left: 1px solid #CCC;
 }
+
+#customization-palette #wrapper-tabgroupsbtn-toolbaritem #tabgroupsbtn-new-button,
+#customization-palette #wrapper-tabgroupsbtn-toolbaritem #tabgroupsbtn-close-button {
+	display: none;
+}
