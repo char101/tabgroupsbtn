@@ -8,21 +8,20 @@ function updateGroup(win, group) {
 
 function showGroups(menu) {
 	let win = getActiveWindow();
-	let GI = getGroupItems(win);
-
 	let doc = win.document;
-	let activegroup = GI.getActiveGroupItem();
-
-	let tabgroups = GI.groupItems;
-	let groups = [];
-	for (let gr of tabgroups)
-		groups.push([gr.id, getGroupTitle(gr), gr == activegroup]);
-	groups.sort((a, b) => a[1].toLowerCase().localeCompare(b[1].toLowerCase()));
 
 	clearPopup(menu)
-	for (let gr of groups) {
-		let [id, title, active] = gr;
-		let mi = createElement(doc, "menuitem", {value: id, label: title}, {click: e => e.stopPropagation()});
+	for (let gr of getGroupList(win)) {
+		let [id, title, active, group] = gr;
+		let mi = createElement(doc, "menuitem", {
+			value: id,
+			class: "menuitem-iconic",
+			image: getGroupImage(group),
+			label: title,
+			acceltext: group.getChildren().length,
+		}, {
+			click: e => e.stopPropagation()
+		});
 		if (! active)
 			mi.addEventListener("command", e => selectGroup(win, id));
 		else

@@ -6,12 +6,18 @@ function getGroupItems(win) win.TabView.getContentWindow().GroupItems;
 function getGroup(win, groupid) getGroupItems(win).groupItem(groupid);
 function getActiveGroup(win) getGroupItems(win).getActiveGroupItem();
 function getGroupTitle(group) group.getTitle() || `Group ${group.id}`;
+function getGroupImage(group) {
+	let ti = group.getActiveTab() || group.getChildren()[0];
+	if (! ti)
+		return;
+	return ti.tab.image;
+}
 function getGroupList(win) {
 	let GI = getGroupItems(win);
 	let groups = [];
 	let activegroup = GI.getActiveGroupItem();
 	for (let gi of GI.groupItems)
-		groups.push([gi.id, getGroupTitle(gi), gi == activegroup]);
+		groups.push([gi.id, getGroupTitle(gi), gi == activegroup, gi]);
 	groups.sort((a, b) => a[1].toLowerCase().localeCompare(b[1].toLowerCase()));
 	return groups;
 }

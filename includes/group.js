@@ -1,12 +1,7 @@
 function selectGroup(win, groupid) {
 	let group = getGroup(win, groupid);
-
-	let GI = getGroupItems(win);
-	GI.setActiveGroupItem(group);
-
-	updateGroup(win, group);
-
 	let browser = win.gBrowser;
+
 	if (group.getChildren().length == 0) {
 		browser.loadOneTab("about:blank", {inBackground: false});
 	} else {
@@ -16,8 +11,7 @@ function selectGroup(win, groupid) {
 			return;
 		}
 
-		let tabitems = group.getChildren();
-		for (let ti of tabitems)
+		for (let ti of group.getChildren())
 			if (! isPending(ti.tab) || isBlank(win, ti.tab)) {
 				browser.selectedTab = tab;
 				return;

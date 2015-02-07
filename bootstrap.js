@@ -53,7 +53,7 @@ function processWindow(win) {
 
 function install(data, reason) {}
 function uninstall(data, reason) {
-	prefBranch.deleteBranch();
+	prefBranch.deleteBranch("");
 }
 function startup(data, reason) {
 	let ss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
