@@ -20,8 +20,14 @@ function showGroups(menu) {
 		let [id, title, active, group] = gr;
 
 		let origtitle = title;
-		if (prevtitle !== null && title.startsWith(prevtitle + ":")) {
-			title = "   ".repeat((prevtitle.match(/:/g) || []).length + 1) + title.substring(prevtitle.length + 1);
+		if (prevtitle !== null) {
+			let temptitle = prevtitle;
+			while (temptitle !== "") {
+				console.log(temptitle);
+				if (title.startsWith(temptitle + ":"))
+					title = "   ".repeat((temptitle.match(/:/g) || []).length + 1) + title.substring(temptitle.length + 1);
+				temptitle = temptitle.match(/:/) ? temptitle.replace(/:[^:]*$/, '') : "";
+			}
 		}
 		prevtitle = origtitle;
 
