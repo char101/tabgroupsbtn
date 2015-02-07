@@ -38,6 +38,11 @@ function confirm(win, title, text) Cc["@mozilla.org/embedcomp/prompt-service;1"]
 function alert(win, title, text) Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService).alert(win, title, text);
 
 function isPending(tab) tab.hasAttribute("pending");
+function isBlank(win, tab) {
+	let uri = win.gBrowser.getBrowserForTab(tab).currentURI.spec;
+	console.log(tab.getAttribute("pending") + " " + uri);
+	return uri == "about:blank" || uri == "about:newtab" || uri == "about:privatebrowsing";
+}
 
 function clearPopup(popup) {
 	while (popup.children.length)
