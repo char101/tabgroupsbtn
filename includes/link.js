@@ -1,16 +1,18 @@
 function openLinkInGroup(win, link, groupid) {
-	let url = link.getAttribute("href");
-	let tb = win.gBrowser;
 	selectGroup(win, groupid);
-	tb.selectedTab = tb.addTab(url);
+
+	let tb = win.gBrowser;
+	tb.selectedTab = tb.addTab(link.href);
+}
+
+function openLinkInNewGroup(win, link) {
+	selectGroup(win, getGroupItems(win).newGroup().id);
+	win.gBrowser.loadURI(link.href);
 }
 
 function showOpenLinkMenu(win, popup) {
 	let doc = win.document;
 	let link = popup.parentNode.parentNode.triggerNode;
-
-	console.log("showOpenLinkMenu");
-	console.log(link);
 
 	clearPopup(popup);
 	for (let gr of getGroupList(win)) {
@@ -21,6 +23,11 @@ function showOpenLinkMenu(win, popup) {
 			popup.appendChild(mi);
 		}
 	}
+
+	popup.appendChild(createElement(doc, "menuseparator"));
+
+	let newgroup = createElement(doc, "menuitem", {label: "New Group"}, {command: e => openLinkInNewGroup(win, link)});
+	popup.appendChild(newgroup);
 }
 
 function addLinkContextMenu(win) {
