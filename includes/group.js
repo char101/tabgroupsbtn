@@ -11,13 +11,19 @@ function selectGroup(win, groupid) {
 		browser.loadOneTab("about:blank", {inBackground: false});
 	} else {
 		let tab = (group.getActiveTab() || group.getChild(0)).tab;
-		if (isPending(tab)) {
-			let tabitems = group.getChildren();
-			for (let ti of tabitems)
-				if (! isPending(ti.tab))
-					tab = ti.tab;
+		if (! isPending(tab)) {
+			browser.selectedTab = tab;
+			return;
 		}
-		browser.selectedTab = tab;
+
+		let tabitems = group.getChildren();
+		for (let ti of tabitems)
+			if (! isPending(ti.tab) || isBlank(win, ti.tab)) {
+				browser.selectedTab = tab;
+				return;
+		}
+
+		group.newTab();
 	}
 }
 
