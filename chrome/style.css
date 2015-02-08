@@ -6,6 +6,10 @@
 	font-weight: bold;
 }
 
+#tabgroupsbtn-menutab-button > image {
+	border-left: 1px solid #CCC;
+}
+
 #tabgroupsbtn-close-button > image {
 	margin-top: 1px;
 	padding-left: 0 !important;
@@ -22,4 +26,11 @@
 #customization-palette #wrapper-tabgroupsbtn-toolbaritem #tabgroupsbtn-new-button,
 #customization-palette #wrapper-tabgroupsbtn-toolbaritem #tabgroupsbtn-close-button {
 	display: none;
+}
+
+.tabgroupsbtn-tab-pending {
+	opacity: 0.5;
+}
+.tabgroupsbtn-menu-active {
+	font-weight: bold;
 }

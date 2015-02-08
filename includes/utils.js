@@ -28,14 +28,24 @@ function getGroupList(win) {
 	return groups;
 }
 
-function createElement(doc, tag, attributes, eventhandlers) {
+function createElement(doc, tag, attributes, eventhandlers, ...children) {
 	let el = doc.createElement(tag);
 	if (attributes)
-		for (let key in attributes)
-			el.setAttribute(key, attributes[key]);
+		for (let key in attributes) {
+			let val = attributes[key];
+			if (val !== undefined && val !== null)
+				el.setAttribute(key, val);
+		}
 	if (eventhandlers)
-		for (let event in eventhandlers)
-			el.addEventListener(event, eventhandlers[event])
+		for (let event in eventhandlers) {
+			let handler = eventhandlers[event];
+			if (typeof handler === "function")
+				el.addEventListener(event, handler);
+		}
+	if (children)
+		for (let child of children)
+			if (typeof child === "object")
+				el.appendChild(child);
 	return el;
 }
 function appendChild(parent, ...children) {
