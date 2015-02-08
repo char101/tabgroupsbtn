@@ -3,7 +3,7 @@ function selectGroup(win, groupid) {
 	let browser = win.gBrowser;
 
 	if (group.getChildren().length == 0) {
-		browser.loadOneTab("about:blank", {inBackground: false});
+		group.newTab();
 	} else {
 		let tab = (group.getActiveTab() || group.getChild(0)).tab;
 		if (! isPending(tab)) {

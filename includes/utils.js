@@ -22,7 +22,7 @@ function getGroupList(win) {
 	groups.sort((a, b) => {
 		let r = (a[3].getTitle() === "") - (b[3].getTitle() === "");
 		if (r === 0)
-			r = a[1].toLowerCase().localeCompare(b[1].toLowerCase());
+			r = naturalSort(a[1].toLowerCase(), b[1].toLowerCase());
 		return r;
 	});
 	return groups;

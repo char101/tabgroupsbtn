@@ -29,6 +29,7 @@ Cu.import("resource:///modules/CustomizableUI.jsm");
 
 let {unload} = require("unload");
 let {runOnLoad, runOnWindows, watchWindows} = require("window-utils");
+let {naturalSort} = require("naturalSort");
 
 include("prefs");
 include("utils")
@@ -36,12 +37,7 @@ include("group")
 include("tab")
 include("link")
 include("toolbar")
-
-function addEventListener(win) {
-	let selectlistener = event => updateGroup(win, getActiveGroup(win));
-	win.gBrowser.tabContainer.addEventListener("select", selectlistener);
-	unload(() => win.gBrowser.tabContainer.removeEventListener("select", selectlistener));
-}
+include("events")
 
 function processWindow(win) {
 	win.TabView._initFrame(function() {
