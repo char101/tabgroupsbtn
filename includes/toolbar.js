@@ -1,7 +1,7 @@
 function updateGroup(win, group) {
 	let widget = win.document.getElementById("tabgroupsbtn-menu-button");
 	if (widget)
-		widget.setAttribute("label", getGroupTitle(group).replace(/:/g, ' | '));
+		widget.setAttribute("label", getGroupTitle(group).replace(/:/g, ' / '));
 }
 
 function showTabs(popup) {
@@ -31,20 +31,9 @@ function showGroups(menu, showtabs=false) {
 
 	clearPopup(menu)
 	let separatoradded = false;
-	let prevtitle = null;
 	for (let gr of getGroupList(win)) {
 		let [id, title, active, group] = gr;
-
-		let origtitle = title;
-		if (prevtitle !== null) {
-			let temptitle = prevtitle;
-			while (temptitle !== "") {
-				if (title.startsWith(temptitle + ":"))
-					title = "   ".repeat((temptitle.match(/:/g) || []).length + 1) + title.substring(temptitle.length + 1);
-				temptitle = temptitle.match(/:/) ? temptitle.replace(/:[^:]*$/, '') : "";
-			}
-		}
-		prevtitle = origtitle;
+		title = title.replace(/:/g, ' / ')
 
 		if (! separatoradded && group.getTitle() === "") {
 			menu.appendChild(doc.createElement("menuseparator"));
