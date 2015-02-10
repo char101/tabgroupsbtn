@@ -95,6 +95,18 @@ function registerToolbarButtons() {
 							renameGroup();
 						}
 					},
+					mouseover: e => {
+						if (getPref("mouseover", false)) {
+							let el = e.target;
+							if (el.getAttribute("id") !== "tabgroupsbtn-menu-button")
+								return;
+							let win = getActiveWindow();
+							let menutabbtn = win.document.getElementById("tabgroupsbtn-menutab-button");
+							if (menutabbtn && menutabbtn.open)
+								menutabbtn.open = false;
+							el.open = true;
+						}
+					}
 				},
 				createElement(doc, "menupopup", null, {popupshowing: e => showGroups(e.target)})
 			);
@@ -106,8 +118,20 @@ function registerToolbarButtons() {
 						type: "menu",
 						class: "toolbarbutton-1",
 						image: "chrome://tabgroupsbtn/content/menutab.png"
+					}, {
+						mouseover: e => {
+							if (getPref("mouseover", false)) {
+								let el = e.target;
+								if (el.getAttribute("id") !== "tabgroupsbtn-menutab-button")
+									return;
+								let win = getActiveWindow();
+								let menubtn = win.document.getElementById("tabgroupsbtn-menu-button");
+								if (menubtn && menubtn.open)
+									menubtn.open = false;
+								e.target.open = true;
+							}
+						}
 					},
-					null,
 					createElement(doc, "menupopup", null, {popupshowing: e => showGroups(e.target, true)})
 				);
 				ti.appendChild(menutabbtn);

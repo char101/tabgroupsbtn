@@ -3,5 +3,6 @@
 	<setting pref="extensions.tabgroupsbtn.menutabbtn-disabled" type="bool" title="Hide tabs menu (the one with down arrow icon)"/>
 	<setting pref="extensions.tabgroupsbtn.closebtn-disabled" type="bool" title="Hide close group button"/>
 	<setting pref="extensions.tabgroupsbtn.newbtn-disabled" type="bool" title="Hide new group button"/>
+	<setting pref="extensions.tabgroupsbtn.mouseover" type="bool" title="Open menu on mouse over"/>
 	<setting title="To apply setting disable then enable the addon." type="control"/>
 </vbox>
