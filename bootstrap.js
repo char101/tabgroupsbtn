@@ -29,7 +29,6 @@ Cu.import("resource:///modules/CustomizableUI.jsm");
 
 let {unload} = require("unload");
 let {runOnLoad, runOnWindows, watchWindows} = require("window-utils");
-let {naturalSort} = require("naturalSort");
 
 include("prefs");
 include("utils")

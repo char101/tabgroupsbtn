@@ -1,7 +1,7 @@
 function updateGroup(win, group) {
 	let widget = win.document.getElementById("tabgroupsbtn-menu-button");
 	if (widget)
-		widget.setAttribute("label", getGroupTitle(group).replace(/:/g, ' / '));
+		widget.setAttribute("label", getGroupTitle(group));
 }
 
 function showTabs(popup) {
@@ -33,7 +33,6 @@ function showGroups(menu, showtabs=false) {
 	let separatoradded = false;
 	for (let gr of getGroupList(win)) {
 		let [id, title, active, group] = gr;
-		title = title.replace(/:/g, ' / ')
 
 		if (! separatoradded && group.getTitle() === "") {
 			menu.appendChild(doc.createElement("menuseparator"));

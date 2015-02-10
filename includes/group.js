@@ -34,9 +34,9 @@ function createSubGroup(win) {
 	if (title === "") {
 		createGroup();
 	} else {
-		let subtitle = prompt(`New Subgroup of ${title}`, "Enter subtitle:");
+		let subtitle = prompt(`New Subgroup of ${title}`, "Name:");
 		if (subtitle)
-			createGroup(win, `${title}:${subtitle}`);
+			createGroup(win, `${title} / ${subtitle}`);
 	}
 }
 

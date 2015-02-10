@@ -5,7 +5,7 @@ function getActiveWindow() FM.activeWindow;
 function getGroupItems(win) win.TabView.getContentWindow().GroupItems;
 function getGroup(win, groupid) getGroupItems(win).groupItem(groupid);
 function getActiveGroup(win) getGroupItems(win).getActiveGroupItem();
-function getGroupTitle(group) group.getTitle() || `Group ${group.id}`;
+function getGroupTitle(group) group.getTitle() || `Unnamed ${group.id}`;
 function getGroupImage(group) {
 	let ti = group.getActiveTab() || group.getChildren()[0];
 	if (! ti)
@@ -20,9 +20,11 @@ function getGroupList(win) {
 		groups.push([gi.id, getGroupTitle(gi), gi == activegroup, gi]);
 	// sort by has title first then by title
 	groups.sort((a, b) => {
-		let r = (a[3].getTitle() === "") - (b[3].getTitle() === "");
+		let at = a[3].getTitle();
+		let bt = b[3].getTitle();
+		let r = (at === "") - (bt === "");
 		if (r === 0)
-			r = naturalSort(a[1].toLowerCase(), b[1].toLowerCase());
+			r = (at === "") ? (a[3].id - b[3].id) : (at.toLowerCase().localeCompare(bt.toLowerCase()));
 		return r;
 	});
 	return groups;
