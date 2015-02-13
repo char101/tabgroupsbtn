@@ -99,8 +99,7 @@ function registerToolbarButtons() {
 							let el = e.target;
 							if (el.getAttribute("id") !== "tabgroupsbtn-menu-button")
 								return;
-							let win = getActiveWindow();
-							let menutabbtn = win.document.getElementById("tabgroupsbtn-menutab-button");
+							let menutabbtn = getActiveWindow().document.getElementById("tabgroupsbtn-menutab-button");
 							if (menutabbtn && menutabbtn.open)
 								menutabbtn.open = false;
 							el.open = true;
@@ -123,8 +122,7 @@ function registerToolbarButtons() {
 								let el = e.target;
 								if (el.getAttribute("id") !== "tabgroupsbtn-menutab-button")
 									return;
-								let win = getActiveWindow();
-								let menubtn = win.document.getElementById("tabgroupsbtn-menu-button");
+								let menubtn = getActiveWindow().document.getElementById("tabgroupsbtn-menu-button");
 								if (menubtn && menubtn.open)
 									menubtn.open = false;
 								e.target.open = true;
@@ -164,9 +162,17 @@ function registerToolbarButtons() {
 						class: "toolbarbutton-1",
 						image: "chrome://tabgroupsbtn/content/new.png"
 					}, {
-						command: event => createGroup(getActiveWindow()),
+						command: event => {
+							let title = prompt("Create New Group", "Name:");
+							if (title)
+								createGroup(getActiveWindow(), title)
+						},
 						click: event => {
-							if (event.button === 2) { // right click
+							if (event.button == 1) {
+								event.preventDefault();
+								event.stopPropagation();
+								createGroup(getActiveWindow());
+							} else if (event.button === 2) { // right click
 								event.preventDefault();
 								event.stopPropagation();
 								createSubGroup(getActiveWindow());
