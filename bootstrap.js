@@ -39,12 +39,9 @@ include("toolbar")
 include("events")
 
 function processWindow(win) {
-	win.TabView._initFrame(function() {
-		updateGroup(win, getActiveGroup(win));
-		addTabContextMenu(win);
-		addLinkContextMenu(win);
-		addEventListener(win);
-	});
+	addTabContextMenu(win);
+	addLinkContextMenu(win);
+	addEventListener(win);
 }
 
 function install(data, reason) {}

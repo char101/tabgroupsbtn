@@ -1,10 +1,32 @@
 const FM = Cc["@mozilla.org/focus-manager;1"].getService(Ci.nsIFocusManager);
 
-function getActiveWindow() FM.activeWindow;
+function getActiveWindow() Services.wm.getMostRecentWindow("navigator:browser");
 
-function getGroupItems(win) win.TabView.getContentWindow().GroupItems;
+function initPanorama(win=null) {
+	if (win === null)
+		win = getActiveWindow();
+	if (! win)
+		return;
+	return new Promise((next, err) => win.TabView._initFrame(() => {
+		let gi = getGroupItems(win);
+		if (gi) {
+			updateGroup(win);
+			next();
+		}
+	}));
+}
+
+function getGroupItems(win) {
+	let cw = win.TabView.getContentWindow();
+	if (cw)
+		return cw.GroupItems;
+}
 function getGroup(win, groupid) getGroupItems(win).groupItem(groupid);
-function getActiveGroup(win) getGroupItems(win).getActiveGroupItem();
+function getActiveGroup(win) {
+	let gi = getGroupItems(win);
+	if (gi)
+		return gi.getActiveGroupItem();
+}
 function getGroupTitle(group) group.getTitle() || `Unnamed ${group.id}`;
 function getGroupImage(group) {
 	let ti = group.getActiveTab() || group.getChildren()[0];
@@ -29,6 +51,11 @@ function getGroupList(win) {
 	});
 	return groups;
 }
+function getGroupListP(win) new Promise((resolve, reject) => {
+	win.TabView._initFrame(function() {
+		resolve(getGroupList(win));
+	});
+});
 
 function createElement(doc, tag, attributes, eventhandlers, ...children) {
 	let el = doc.createElement(tag);

@@ -21,15 +21,17 @@ function selectGroup(win, groupid) {
 	}
 }
 
-function createGroup(win, title) {
+function createGroup(title=null, win=null) {
+	win = win || getActiveWindow();
 	let group = getGroupItems(win).newGroup();
-	if (title !== undefined)
+	if (title !== null && title !== undefined)
 		group.setTitle(title);
 	group.newTab();
 	win.document.getElementById("urlbar").focus();
 }
 
-function createSubGroup(win) {
+function createSubGroup(win=null) {
+	win = win || getActiveWindow();
 	let title = getActiveGroup(win).getTitle();
 	if (title === "") {
 		createGroup();

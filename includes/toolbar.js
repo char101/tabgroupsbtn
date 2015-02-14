@@ -1,4 +1,8 @@
-function updateGroup(win, group) {
+function updateGroup(win, group=null) {
+	if (group === null)
+		group = getActiveGroup(win);
+	if (! group)
+		return;
 	let widget = win.document.getElementById("tabgroupsbtn-menu-button");
 	if (widget)
 		widget.setAttribute("label", getGroupTitle(group));
@@ -85,7 +89,7 @@ function registerToolbarButtons() {
 					id: "tabgroupsbtn-menu-button",
 					type: "menu",
 					class: "toolbarbutton-1",
-					label: "Tab Groups Button"
+					label: "Tab Groups"
 				}, {
 					click: event => {
 						if (event.button === 2) { // right click
@@ -106,7 +110,7 @@ function registerToolbarButtons() {
 						}
 					}
 				},
-				createElement(doc, "menupopup", null, {popupshowing: e => showGroups(e.target)})
+				createElement(doc, "menupopup", null, {popupshowing: e => initPanorama().then(() => showGroups(e.target))})
 			);
 			ti.appendChild(menubtn);
 
@@ -129,7 +133,7 @@ function registerToolbarButtons() {
 							}
 						}
 					},
-					createElement(doc, "menupopup", null, {popupshowing: e => showGroups(e.target, true)})
+					createElement(doc, "menupopup", null, {popupshowing: e => initPanorama().then(() => showGroups(e.target, true))})
 				);
 				ti.appendChild(menutabbtn);
 			}
@@ -142,14 +146,16 @@ function registerToolbarButtons() {
 					}, {
 						command: event => {
 							let win = getActiveWindow();
-							if (getGroupItems(win).groupItems.length == 1)
-								return;
-							let group = getActiveGroup(win);
-							let title = getGroupTitle(group);
-							let ntabs = group.getChildren().length;
-							let s = ntabs > 1 ? 's' : '';
-							if (confirm("Confirm Close Tab Group", `You are about to close tab group ${title} (${ntabs} tab${s}). Are you sure you want to continue?`))
-								closeGroup(win, getActiveGroup(win).id);
+							initPanorama(win).then(() => {
+								if (getGroupItems(win).groupItems.length == 1)
+									return;
+								let group = getActiveGroup(win);
+								let title = getGroupTitle(group);
+								let ntabs = group.getChildren().length;
+								let s = ntabs > 1 ? 's' : '';
+								if (confirm("Confirm Close Tab Group", `You are about to close tab group ${title} (${ntabs} tab${s}). Are you sure you want to continue?`))
+									closeGroup(win, getActiveGroup(win).id);
+							});
 						}
 					}
 				);
@@ -165,17 +171,17 @@ function registerToolbarButtons() {
 						command: event => {
 							let title = prompt("Create New Group", "Name:");
 							if (title)
-								createGroup(getActiveWindow(), title)
+								initPanorama().then(() => createGroup(title));
 						},
 						click: event => {
 							if (event.button == 1) {
 								event.preventDefault();
 								event.stopPropagation();
-								createGroup(getActiveWindow());
+								initPanorama().then(createGroup);
 							} else if (event.button === 2) { // right click
 								event.preventDefault();
 								event.stopPropagation();
-								createSubGroup(getActiveWindow());
+								initPanorama().then(createSubGroup);
 							}
 						}
 					}
