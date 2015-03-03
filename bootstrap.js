@@ -4,6 +4,8 @@ const Cu = Components.utils;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/devtools/Console.jsm");
 Cu.import("resource:///modules/CustomizableUI.jsm");
+// Linux, WINNT, Mac?
+const IS_LINUX = Cc["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULRuntime).OS == 'Linux';
 
 (function(global) {
 	global.include = function include(src) {
@@ -35,13 +37,28 @@ include("utils")
 include("group")
 include("tab")
 include("link")
+include("buttons")
 include("toolbar")
 include("events")
 
+let firstWindow = true;
+
 function processWindow(win) {
+	createToolbar(win);
+
+	if (IS_LINUX && firstWindow) {
+		manualRefreshTabs(win);
+	} else {
+		initPanorama(win).then(() => {
+			updateGroup(win);
+			refreshTabs(win);
+		});
+	}
 	addTabContextMenu(win);
 	addLinkContextMenu(win);
 	addEventListener(win);
+
+	firstWindow = false;
 }
 
 function install(data, reason) {}
@@ -55,7 +72,10 @@ function startup(data, reason) {
 	ss.loadAndRegisterSheet(ssuri, ss.AUTHOR_SHEET);
 	unload(() => ss.unregisterSheet(ssuri, ss.AUTHOR_SHEET));
 
-	registerToolbarButtons();
+	firstWindow = true;
+
+	registerButtons();
+	registerToolbar();
 	watchWindows(processWindow, "navigator:browser");
 }
 function shutdown(data, reason) unload();

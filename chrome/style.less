@@ -1,0 +1,74 @@
+@hide-image: {
+	& > image { display: none; }
+};
+// force hiding dropmarker on linux
+@hide-dropmarker: {
+	& > dropmarker { display: none; }
+};
+@show-label: {
+	& > label.toolbarbutton-text { display: -moz-box; }
+};
+@add-placeholder: {
+	& > &-placeholder {
+		display: none;
+		@show-label();
+		toolbarpaletteitem > & {
+			display: -moz-box;
+			list-style-image: url("chrome://tabgroupsbtn/content/@{icon}.png");
+		}
+	}
+	toolbarpaletteitem[place="palette"] > & > &-placeholder, &[cui-areatype="menu-panel"] > &-placeholder{
+		list-style-image: url("chrome://tabgroupsbtn/content/@{icon}32.png");
+	}
+	toolbarpaletteitem > & > &-container {
+		display: none;
+	}
+};
+
+#tabgroupsbtn-btn {
+	@icon: "group";
+	@add-placeholder();
+	&-menu {
+		@hide-image();
+		@hide-dropmarker();
+		@show-label();
+		& > label.toolbarbutton-text { font-weight: bold; }
+	}
+	&-menutab {
+		@hide-dropmarker();
+		& > image { border-left: 1px solid rgba(128, 128, 128, 0.5); }
+		#TabsToolbar, #toolbar-menubar > & > image {
+			margin: 0 !important;
+			padding-left: 4px !important;
+			padding-right: 4px !important;
+		}
+	}
+	&-close > image {
+		margin-top: 1px;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+	&-new > image {
+		margin-top: 1px !important;
+		padding-left: 2px !important;
+		padding-right: 2px !important;
+		border-left: 1px solid rgba(128, 128, 128, 0.5);
+	}
+}
+.tabgroupsbtn-btn {
+	&-pending { opacity: 0.5; }
+	&-active { font-weight: bold; }
+}
+
+#tabgroupsbtn-bar {
+	@icon: "tab";
+	@add-placeholder();
+}
+.tabgroupsbtn-bar {
+	&-button {
+		@show-label();
+	}
+	&-manual {
+		@show-label();
+	}
+}

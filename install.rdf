@@ -5,7 +5,7 @@
 		<creator>char101</creator>
 		<id>tabgroupsbtn@char101.github.com</id>
 		<name>Tab Groups Button</name>
-		<version>0.35</version>
+		<version>0.4</version>
 		<type>2</type>
 		<bootstrap>true</bootstrap>
 		<homepageURL>https://github.com/char101/tabgroupsbtn</homepageURL>
@@ -13,7 +13,7 @@
 			<r:Description>
 				<id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</id>
 				<!-- https://addons.mozilla.org/en-US/firefox/pages/appversions/ -->
-				<minVersion>29.0</minVersion>
+				<minVersion>35.0</minVersion>
 				<maxVersion>35.*</maxVersion>
 			</r:Description>
 		</targetApplication>

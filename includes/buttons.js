@@ -1,9 +1,11 @@
-function updateGroup(win, group=null) {
-	if (group === null)
-		group = getActiveGroup(win);
+function updateGroup(win=null, group=null) {
+	win = win || getActiveWindow();
+	if (! win)
+		return;
+	group = group || getActiveGroup(win);
 	if (! group)
 		return;
-	let widget = win.document.getElementById("tabgroupsbtn-menu-button");
+	let widget = win.document.getElementById("tabgroupsbtn-btn-menu");
 	if (widget)
 		widget.setAttribute("label", getGroupTitle(group));
 }
@@ -20,7 +22,7 @@ function showTabs(popup) {
 		let mi = createElement(doc, "menuitem", {
 				label: tab.label,
 				image: tab.image,
-				class: "menuitem-iconic" + (tab.hasAttribute("pending") ? " tabgroupsbtn-tab-pending" : "")
+				class: "menuitem-iconic" + (tab.hasAttribute("pending") ? " tabgroupsbtn-btn-pending" : "")
 			}, {
 				command: e => win.gBrowser.selectedTab = tab
 			}
@@ -60,7 +62,7 @@ function showGroups(menu, showtabs=false) {
 			if (group.getChildren().length > 0)
 				menu.appendChild(createElement(doc, "menu", {
 						value: id,
-						class: "menu-iconic" + (active ? " tabgroupsbtn-menu-active" : ""),
+						class: "menu-iconic" + (active ? " tabgroupsbtn-btn-active" : ""),
 						image: getGroupImage(group),
 						label: title,
 						acceltext: group.getChildren().length
@@ -74,19 +76,29 @@ function showGroups(menu, showtabs=false) {
 	}
 }
 
-function registerToolbarButtons() {
+function registerButtons() {
 	CustomizableUI.createWidget({
-		id: "tabgroupsbtn-toolbaritem",
+		id: "tabgroupsbtn-btn", // should match the returned element id
 		type: "custom",
 		label: "Tab Groups Button",
 		tooltiptext: "Tab Groups Button",
 		defaultArea: CustomizableUI.AREA_NAVBAR,
 		onBuild: function(doc) {
-			let ti = createElement(doc, "toolbaritem", {id: "tabgroupsbtn-toolbaritem"});
+			let ti = createElement(doc, "toolbaritem", {id: "tabgroupsbtn-btn"});
+
+			let placeholder = createElement(doc, "toolbarbutton", {
+				id: "tabgroupsbtn-btn-placeholder",
+				class: "toolbarbutton-1",
+				label: "TabGroupsBtn:Menu",
+			});
+			ti.appendChild(placeholder);
+
+			let container = createElement(doc, "hbox", {id: "tabgroupsbtn-btn-container"});
+			ti.appendChild(container);
 
 			// no active window
 			let menubtn = createElement(doc, "toolbarbutton", {
-					id: "tabgroupsbtn-menu-button",
+					id: "tabgroupsbtn-btn-menu",
 					type: "menu",
 					class: "toolbarbutton-1",
 					label: "Tab Groups"
@@ -112,11 +124,11 @@ function registerToolbarButtons() {
 				},
 				createElement(doc, "menupopup", null, {popupshowing: e => initPanorama().then(() => showGroups(e.target))})
 			);
-			ti.appendChild(menubtn);
+			container.appendChild(menubtn);
 
 			if (! getPref("menutabbtn-disabled", false)) {
 				let menutabbtn = createElement(doc, "toolbarbutton", {
-						id: "tabgroupsbtn-menutab-button",
+						id: "tabgroupsbtn-btn-menutab",
 						type: "menu",
 						class: "toolbarbutton-1",
 						image: "chrome://tabgroupsbtn/content/menutab.png"
@@ -135,12 +147,12 @@ function registerToolbarButtons() {
 					},
 					createElement(doc, "menupopup", null, {popupshowing: e => initPanorama().then(() => showGroups(e.target, true))})
 				);
-				ti.appendChild(menutabbtn);
+				container.appendChild(menutabbtn);
 			}
 
 			if (! getPref("closebtn-disabled", false)) {
 				let closebtn = createElement(doc, "toolbarbutton", {
-						id: "tabgroupsbtn-close-button",
+						id: "tabgroupsbtn-btn-close",
 						class: "toolbarbutton-1",
 						image: "chrome://tabgroupsbtn/content/close.png"
 					}, {
@@ -159,12 +171,12 @@ function registerToolbarButtons() {
 						}
 					}
 				);
-				ti.appendChild(closebtn);
+				container.appendChild(closebtn);
 			}
 
 			if (! getPref("newbtn-disabled", false)) {
 				let newbtn = createElement(doc, "toolbarbutton", {
-						id: "tabgroupsbtn-new-button",
+						id: "tabgroupsbtn-btn-new",
 						class: "toolbarbutton-1",
 						image: "chrome://tabgroupsbtn/content/new.png"
 					}, {
@@ -186,19 +198,19 @@ function registerToolbarButtons() {
 						}
 					}
 				);
-				ti.appendChild(newbtn);
+				container.appendChild(newbtn);
 			}
 
 			return ti;
 		}
 	});
-	unload(() => CustomizableUI.destroyWidget("tabgroupsbtn-toolbaritem"));
+	unload(() => CustomizableUI.destroyWidget("tabgroupsbtn-btn"));
 
 	if (! getPref("customized"))
-		CustomizableUI.addWidgetToArea("tabgroupsbtn-toolbaritem", CustomizableUI.AREA_NAVBAR, 0);
+		CustomizableUI.addWidgetToArea("tabgroupsbtn-btn", CustomizableUI.AREA_NAVBAR, 0);
 
 	let setCustomized = function(widget) {
-		if (widget == "tabgroupsbtn-toolbaritem")
+		if (widget == "tabgroupsbtn-btn")
 			setPref("customized", true);
 	};
 	let listener = {
@@ -209,12 +221,7 @@ function registerToolbarButtons() {
 				updateGroup(win, getActiveGroup(win));
 		},
 		onWidgetMoved: (widget, area, oldpos, newpos) => setCustomized(widget),
-		onWidgetRemoved: (widget, area) => {
-			setCustomized(widget);
-			let win = getActiveWindow();
-			if (win)
-				win.document.getElementById("tabgroupsbtn-toolbaritem").setAttribute("label", "Tab Groups Button");
-		}
+		onWidgetRemoved: (widget, area) => setCustomized(widget),
 	};
 	CustomizableUI.addListener(listener);
 	unload(() => CustomizableUI.removeListener(listener));

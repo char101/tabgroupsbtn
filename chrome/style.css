@@ -1,43 +1,81 @@
-#tabgroupsbtn-menu-button > image {
-	display: none;
+#tabgroupsbtn-btn > #tabgroupsbtn-btn-placeholder {
+  display: none;
 }
-#tabgroupsbtn-menu-button > label.toolbarbutton-text {
-	display: -moz-box;
-	font-weight: bold;
+#tabgroupsbtn-btn > #tabgroupsbtn-btn-placeholder > label.toolbarbutton-text {
+  display: -moz-box;
 }
-
-#tabgroupsbtn-menutab-button > image {
-	border-left: 1px solid rgba(128, 128, 128, 0.5);
+toolbarpaletteitem > #tabgroupsbtn-btn > #tabgroupsbtn-btn-placeholder {
+  display: -moz-box;
+  list-style-image: url("chrome://tabgroupsbtn/content/group.png");
 }
-
-#tabgroupsbtn-close-button > image {
-	margin-top: 1px;
-	padding-left: 0 !important;
-	padding-right: 0 !important;
+toolbarpaletteitem[place="palette"] > #tabgroupsbtn-btn > #tabgroupsbtn-btn-placeholder,
+#tabgroupsbtn-btn[cui-areatype="menu-panel"] > #tabgroupsbtn-btn-placeholder {
+  list-style-image: url("chrome://tabgroupsbtn/content/group32.png");
 }
-
-#tabgroupsbtn-new-button > image {
-	margin-top: 1px !important;
-	padding-left: 2px !important;
-	padding-right: 2px !important;
-	border-left: 1px solid rgba(128, 128, 128, 0.5);
+toolbarpaletteitem > #tabgroupsbtn-btn > #tabgroupsbtn-btn-container {
+  display: none;
 }
-
-#customization-palette #wrapper-tabgroupsbtn-toolbaritem #tabgroupsbtn-new-button,
-#customization-palette #wrapper-tabgroupsbtn-toolbaritem #tabgroupsbtn-close-button {
-	display: none;
+#tabgroupsbtn-btn-menu > image {
+  display: none;
 }
-
-.tabgroupsbtn-tab-pending {
-	opacity: 0.5;
+#tabgroupsbtn-btn-menu > dropmarker {
+  display: none;
 }
-.tabgroupsbtn-menu-active {
-	font-weight: bold;
+#tabgroupsbtn-btn-menu > label.toolbarbutton-text {
+  display: -moz-box;
 }
-
-#TabsToolbar #tabgroupsbtn-menutab-button > image,
-#toolbar-menubar #tabgroupsbtn-menutab-button > image {
-	margin: 0 !important;
-	padding-left: 4px !important;
-	padding-right: 4px !important;
+#tabgroupsbtn-btn-menu > label.toolbarbutton-text {
+  font-weight: bold;
+}
+#tabgroupsbtn-btn-menutab > dropmarker {
+  display: none;
+}
+#tabgroupsbtn-btn-menutab > image {
+  border-left: 1px solid rgba(128, 128, 128, 0.5);
+}
+#tabgroupsbtn-btn-menutab #TabsToolbar,
+#toolbar-menubar > #tabgroupsbtn-btn-menutab > image {
+  margin: 0 !important;
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+}
+#tabgroupsbtn-btn-close > image {
+  margin-top: 1px;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+#tabgroupsbtn-btn-new > image {
+  margin-top: 1px !important;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+  border-left: 1px solid rgba(128, 128, 128, 0.5);
+}
+.tabgroupsbtn-btn-pending {
+  opacity: 0.5;
+}
+.tabgroupsbtn-btn-active {
+  font-weight: bold;
+}
+#tabgroupsbtn-bar > #tabgroupsbtn-bar-placeholder {
+  display: none;
+}
+#tabgroupsbtn-bar > #tabgroupsbtn-bar-placeholder > label.toolbarbutton-text {
+  display: -moz-box;
+}
+toolbarpaletteitem > #tabgroupsbtn-bar > #tabgroupsbtn-bar-placeholder {
+  display: -moz-box;
+  list-style-image: url("chrome://tabgroupsbtn/content/tab.png");
+}
+toolbarpaletteitem[place="palette"] > #tabgroupsbtn-bar > #tabgroupsbtn-bar-placeholder,
+#tabgroupsbtn-bar[cui-areatype="menu-panel"] > #tabgroupsbtn-bar-placeholder {
+  list-style-image: url("chrome://tabgroupsbtn/content/tab32.png");
+}
+toolbarpaletteitem > #tabgroupsbtn-bar > #tabgroupsbtn-bar-container {
+  display: none;
+}
+.tabgroupsbtn-bar-button > label.toolbarbutton-text {
+  display: -moz-box;
+}
+.tabgroupsbtn-bar-manual > label.toolbarbutton-text {
+  display: -moz-box;
 }

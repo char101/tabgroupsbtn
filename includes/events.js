@@ -1,8 +1,11 @@
+// previousGroupId defined in bootstrap
 function addEventListener(win) {
 	let tabcontainer = win.gBrowser.tabContainer;
 
 	function onTabSelect(event) {
+		let activeGroup = getActiveGroup(win);
 		updateGroup(win, getActiveGroup(win));
+		refreshTabs(win);
 	}
 	tabcontainer.addEventListener("select", onTabSelect);
 	unload(() => tabcontainer.removeEventListener("select", onTabSelect));

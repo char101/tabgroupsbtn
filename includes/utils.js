@@ -12,6 +12,8 @@ function initPanorama(win=null) {
 		if (gi) {
 			updateGroup(win);
 			next();
+		} else {
+			err();
 		}
 	}));
 }
@@ -22,24 +24,27 @@ function getGroupItems(win) {
 		return cw.GroupItems;
 }
 function getGroup(win, groupid) getGroupItems(win).groupItem(groupid);
-function getActiveGroup(win) {
+function getActiveGroup(win=null) {
+	win = win || getActiveWindow();
+	if (! win)
+		return;
 	let gi = getGroupItems(win);
 	if (gi)
 		return gi.getActiveGroupItem();
 }
-function getGroupTitle(group) group.getTitle() || `Unnamed ${group.id}`;
+function getGroupTitle(group, shortnames=false) group.getTitle() || (shortnames ? `[ ${group.id} ]` : `Unnamed ${group.id}`);
 function getGroupImage(group) {
 	let ti = group.getActiveTab() || group.getChildren()[0];
 	if (! ti)
 		return;
 	return ti.tab.image;
 }
-function getGroupList(win) {
+function getGroupList(win, shortnames=false) {
 	let GI = getGroupItems(win);
 	let groups = [];
 	let activegroup = GI.getActiveGroupItem();
 	for (let gi of GI.groupItems)
-		groups.push([gi.id, getGroupTitle(gi), gi == activegroup, gi]);
+		groups.push([gi.id, getGroupTitle(gi, shortnames), gi == activegroup, gi]);
 	// sort by has title first then by title
 	groups.sort((a, b) => {
 		let at = a[3].getTitle();
@@ -98,7 +103,18 @@ function isBlank(win, tab) {
 	return uri == "about:blank" || uri == "about:newtab" || uri == "about:privatebrowsing";
 }
 
+function clearChildren(parent) {
+	while (true) {
+		let child = parent.firstChild;
+		if (child)
+			parent.removeChild(child);
+		else
+			break;
+	}
+}
 function clearPopup(popup) {
-	while (popup.children.length)
-		popup.removeChild(popup.firstChild);
+	clearChildren(popup);
+}
+function clearTabs(tabs) {
+	clearChildren(tabs);
 }
