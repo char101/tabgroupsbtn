@@ -1,62 +1,30 @@
+"use strict";
+
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/devtools/Console.jsm");
-Cu.import("resource:///modules/CustomizableUI.jsm");
-// Linux, WINNT, Mac?
-const IS_LINUX = Cc["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULRuntime).OS == 'Linux';
 
-(function(global) {
-	global.include = function include(src) {
-		var tools = {};
-		Cu.import("resource://gre/modules/Services.jsm", tools);
-		var baseURI = tools.Services.io.newURI(__SCRIPT_URI_SPEC__, null, null);
-		var uri = tools.Services.io.newURI("includes/" + src + ".js", null, tools.Services.io.newURI(__SCRIPT_URI_SPEC__, null, null));
-		tools.Services.scriptloader.loadSubScript(uri.spec, global);
-	};
-	var modules = {};
-	global.require = function require(src) {
-		if (modules[src])
-			return modules[src];
-		var scope = {require: global.require, Cu: global.Cu, Ci: global.Ci, Cc: global.Cc, exports: {}};
-		var tools = {};
-		Cu.import("resource://gre/modules/Services.jsm", tools);
-		var baseURI = tools.Services.io.newURI(__SCRIPT_URI_SPEC__, null, null);
-		var uri = tools.Services.io.newURI("modules/" + src + ".js", null, baseURI);
-		tools.Services.scriptloader.loadSubScript(uri.spec, scope);
-		return modules[src] = scope.exports || scope.module.exports;
-	};
-})(this);
+const IS_LINUX = Services.appinfo.OS == 'Linux'; // Linux, WINNT, Mac?
 
-let {unload} = require("unload");
-let {runOnLoad, runOnWindows, watchWindows} = require("window-utils");
-
-include("prefs");
-include("utils")
-include("group")
-include("tab")
-include("link")
-include("buttons")
-include("toolbar")
-include("events")
-
-let firstWindow = true;
+let toolbar = {}, buttons = {}, window = {}, tabgroups = {}, firstWindow = true;
 
 function processWindow(win) {
-	createToolbar(win);
+	toolbar.createToolbar(win);
 
 	if (IS_LINUX && firstWindow) {
-		manualRefreshTabs(win);
+		toolbar.manualRefresh(win);
 	} else {
-		initPanorama(win).then(() => {
-			updateGroup(win);
-			refreshTabs(win);
+		tabgroups.initPanorama(win).then(() => {
+			buttons.refresh(win);
+			toolbar.refresh(win);
 		});
 	}
-	addTabContextMenu(win);
-	addLinkContextMenu(win);
-	addEventListener(win);
+
+	window.addTabContextMenu(win);
+	window.addLinkContextMenu(win);
+	window.registerEventListeners(win);
 
 	firstWindow = false;
 }
@@ -64,18 +32,28 @@ function processWindow(win) {
 function install(data, reason) {}
 function uninstall(data, reason) {
 	if (reason == ADDON_UNINSTALL)
-		prefBranch.deleteBranch("");
+		Services.prefs.getBranch("extensions.tabgroupsbtn.").deleteBranch("");
 }
 function startup(data, reason) {
+	Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
+	Cu.import("chrome://tabgroupsbtn/content/toolbar.jsm", toolbar);
+	Cu.import("chrome://tabgroupsbtn/content/buttons.jsm", buttons);
+	Cu.import("chrome://tabgroupsbtn/content/window.jsm", window);
+	Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm", tabgroups);
+
 	let ss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
-	let ssuri = Services.io.newURI("chrome://tabgroupsbtn/content/style.css", null, null);
+	let ssuri = Services.io.newURI("chrome://tabgroupsbtn/skin/style.css", null, null);
 	ss.loadAndRegisterSheet(ssuri, ss.AUTHOR_SHEET);
 	unload(() => ss.unregisterSheet(ssuri, ss.AUTHOR_SHEET));
 
 	firstWindow = true;
 
-	registerButtons();
-	registerToolbar();
+	buttons.registerWidgets();
+	toolbar.registerWidgets();
 	watchWindows(processWindow, "navigator:browser");
 }
-function shutdown(data, reason) unload();
+function shutdown(data, reason) {
+	unload();
+	for (let module of ["addon", "prefs", "toolbar", "buttons", "window", "tabgroups", "utils"])
+		Cu.unload(`chrome://tabgroupsbtn/content/${module}.jsm`);
+}

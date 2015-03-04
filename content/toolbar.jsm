@@ -1,10 +1,27 @@
+"use strict";
+
+let EXPORTED_SYMBOLS = [
+	"refresh",
+	"manualRefresh",
+	"createToolbar",
+	"registerWidgets"
+];
+
+const Cu = Components.utils;
+Cu.import("resource://gre/modules/devtools/Console.jsm");
+Cu.import("resource:///modules/CustomizableUI.jsm");
+Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
+Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
+Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
+Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
+
 function isToolbarUpdateRequired(groups, container) {
 	let items = container.children;
 
 	if (groups.length !== items.length)
 		return true;
 
-	if (getPref("bar.tab")) {
+	if (! getPref("bar.button")) {
 		for (let i = 0, n = groups.length; i < n; ++i) {
 			let [id, title, active, group] = groups[i];
 			let tab = items[i];
@@ -26,26 +43,22 @@ function isToolbarUpdateRequired(groups, container) {
 
 function clearToolbarSelectedState(container) {
 	let children = container.children;
-	if (getPref("bar.tab")) {
+	if (! getPref("bar.button")) {
 		for (let i = 0, n = children.length; i < n; ++i) {
 			let tab = children[i];
-			if (tab.selected) {
+			if (tab.selected)
 				tab.setAttribute("selected", false);
-				break;
-			}
 		}
 	} else {
 		for (let i = 0, n = children.length; i < n; ++i) {
 			let btn = children[i];
-			if (btn.checked) {
+			if (btn.checked)
 				btn.checked = false;
-				break;
-			}
 		}
 	}
 }
 
-exports.refresh = function refresh(win=null) {
+function refresh(win=null) {
 	if (win === null)
 		win = getActiveWindow();
 	let doc = win.document;
@@ -57,7 +70,7 @@ exports.refresh = function refresh(win=null) {
 		if (isToolbarUpdateRequired(groups, items)) {
 			// console.log("refreshTabs");
 
-			if (getPref("bar.tab")) {
+			if (! getPref("bar.button")) {
 				clearTabs(items);
 
 				for (let gr of groups) {
@@ -79,13 +92,12 @@ exports.refresh = function refresh(win=null) {
 			} else {
 				clearChildren(items);
 
-				for (let gr of getGroupList(win)) {
-					let [id, title, active, group] = gr;
+				for (let i = 0, n = groups.length; i < n; ++i) {
+					let [id, title, active, group] = groups[i];
 					let btn = createElement(doc, "toolbarbutton", {
 						type: "checkbox",
-						class: "toolbarbutton-1 tabgroupsbtn-bar-button",
+						class: "toolbarbutton-1 chromeclass-toolbar-additional tabgroupsbtn-bar-button",
 						label: title,
-						checked: active,
 						value: id
 					}, {
 						command: e => {
@@ -95,13 +107,18 @@ exports.refresh = function refresh(win=null) {
 						}
 					});
 					items.appendChild(btn);
+					if (active)
+						btn.checked = true;
+
+					if (i < n - 1)
+						items.appendChild(createElement(doc, "toolbarseparator"));
 				}
 			}
 		}
 	});
 }
 
-exports.manualRefresh = function manualRefresh(win) {
+function manualRefresh(win) {
 	if (win === null)
 		win = getActiveWindow();
 	let doc = win.document;
@@ -114,18 +131,17 @@ exports.manualRefresh = function manualRefresh(win) {
 	});
 	btn.addEventListener("command", e => {
 		ti.removeChild(btn);
-		refreshTabs(win);
+		refresh(win);
 	}, false);
 	ti.insertBefore(btn, ti.firstChild);
 }
 
-exports.registerWidget = function registerWidget() {
+function registerWidgets() {
 	CustomizableUI.createWidget({
 		id: "tabgroupsbtn-bar",
 		type: "custom",
 		label: "Tab Groups Button (Bar)",
 		tooltiptext: "Tab Groups Button (Bar)",
-		// no defaultarea = the widget will not be added automatically
 		onBuild: function(doc) {
 			let ti = createElement(doc, "toolbaritem", {
 				id: "tabgroupsbtn-bar",
@@ -148,7 +164,7 @@ exports.registerWidget = function registerWidget() {
 			});
 			ti.appendChild(container);
 
-			if (getPref("bar.tab")) {
+			if (! getPref("bar.button")) {
 				let tabbox = createElement(doc, "tabbox", {
 					id: "tabgroupsbtn-bar-tabbox",
 					flex: 1
@@ -171,7 +187,14 @@ exports.registerWidget = function registerWidget() {
 				});
 				tabs.appendChild(scroll);
 			} else {
-				let scroll = createElement(doc, "scrollbox", {id: "tabgroupsbtn-bar-items"});
+				let scroll = createElement(doc, "arrowscrollbox", {
+					id: "tabgroupsbtn-bar-items",
+					smoothscroll: true,
+					allowevents: true,
+					clicktoscroll: true,
+					flex: 1,
+					orient: "horizontal"
+				});
 				container.appendChild(scroll);
 			}
 
@@ -190,29 +213,115 @@ exports.registerWidget = function registerWidget() {
 		onWidgetAdded: (widget, area, position) => {
 			let win = getActiveWindow();
 			if (win)
-				refreshTabs(win);
+				refresh(win);
 		},
 	};
 	CustomizableUI.addListener(listener);
 	unload(() => CustomizableUI.removeListener(listener));
 }
 
-exports.createToolbar = function createToolbar(win) {
+function setToolbarStyle(win, transparent) {
+	let doc = win.document;
+	let toolbar = doc.getElementById("tabgroupsbtn-bar-toolbar");
+	if (! toolbar)
+		return;
+	let tabstoolbar = doc.getElementById("TabsToolbar");
+	if (transparent) {
+		toolbar.classList.add("tabgroupsbtn-bar-toolbar-transparent");
+		if (tabstoolbar) {
+			tabstoolbar.classList.add("tabstoolbar-nomargin");
+			unload(() => el.classList.remove("tabstoolbar-nomargin"));
+		}
+	} else {
+		toolbar.classList.remove("tabgroupsbtn-bar-toolbar-transparent");
+		if (tabstoolbar)
+			tabstoolbar.classList.remove("tabstoolbar-nomargin");
+	}
+}
+
+function positionToolbar(win, toolbar=null) {
+	let doc = win.document;
+	if (toolbar === null)
+		toolbar = doc.getElementById("tabgroupsbtn-bar-toolbar");
+	if (! toolbar)
+		return;
+
+	let position = getPref("bar.position");
+	let done = false;
+	switch (position) {
+		case "top-last":
+			doc.getElementById("navigator-toolbox").appendChild(toolbar);
+			setToolbarStyle(win, false);
+			done = true;
+			break;
+		case "bottom-first":
+			let parent = doc.getElementById("browser-bottombox");
+			parent.insertBefore(toolbar, parent.firstChild);
+			setToolbarStyle(win, false);
+			done = true;
+			break;
+		case "bottom-last":
+			doc.getElementById("browser-bottombox").appendChild(toolbar);
+			setToolbarStyle(win, false);
+			done = true;
+			break;
+		default:
+			if (position) {
+				let pos = "before";
+				let id = position;
+
+				let parts = position.split("|");
+				if (parts.length == 2)
+					[pos, id] = parts;
+
+				let el = doc.getElementById(id);
+				if (el) {
+					if (pos == "after") {
+						el.parentNode.insertBefore(toolbar, el.nextSibling);
+						done = true;
+					} else if (pos == "before") {
+						el.parentNode.insertBefore(toolbar, el);
+						done = true;
+					}
+					setToolbarStyle(win, id == "TabsToolbar" && pos == "before");
+				}
+
+			}
+	}
+
+	if (! done)
+		doc.getElementById("navigator-toolbox").insertBefore(toolbar, doc.getElementById("TabsToolbar"));
+}
+
+function createToolbar(win) {
 	let doc = win.document;
 	let toolbar = createElement(doc, "toolbar", {
 		id: "tabgroupsbtn-bar-toolbar",
 		class: "toolbar-primary chromeclass-toolbar",
 		toolbarname: "Tab Groups Button",
-		defaultset: "tabgroupsbtn-bar",
+		defaultset: "tabgroupsbtn-bar,tabgroupsbtn-btn",
 		hidden: false,
 		mode: "full", // icons/text/null
 		iconsize: "small",
 		customizable: true
 	});
-	doc.getElementById("navigator-toolbox").insertBefore(toolbar, doc.getElementById("TabsToolbar"));
+
+	positionToolbar(win, toolbar);
+
 	unload(() => {
 		let tb = doc.getElementById("tabgroupsbtn-bar-toolbar");
 		if (tb)
 			tb.remove();
 	});
 }
+
+let prefObserver = {
+	observe(subject, topic, data) {
+		switch (data) {
+			case "bar.position":
+				runOnWindows((win) => positionToolbar(win));
+				break;
+		}
+	}
+}
+registerPrefsObserver(prefObserver);

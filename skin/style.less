@@ -14,11 +14,11 @@
 		@show-label();
 		toolbarpaletteitem > & {
 			display: -moz-box;
-			list-style-image: url("chrome://tabgroupsbtn/content/@{icon}.png");
+			list-style-image: url("chrome://tabgroupsbtn/skin/@{icon}.png");
 		}
 	}
 	toolbarpaletteitem[place="palette"] > & > &-placeholder, &[cui-areatype="menu-panel"] > &-placeholder{
-		list-style-image: url("chrome://tabgroupsbtn/content/@{icon}32.png");
+		list-style-image: url("chrome://tabgroupsbtn/skin/@{icon}32.png");
 	}
 	toolbarpaletteitem > & > &-container {
 		display: none;
@@ -37,11 +37,6 @@
 	&-menutab {
 		@hide-dropmarker();
 		& > image { border-left: 1px solid rgba(128, 128, 128, 0.5); }
-		#TabsToolbar, #toolbar-menubar > & > image {
-			margin: 0 !important;
-			padding-left: 4px !important;
-			padding-right: 4px !important;
-		}
 	}
 	&-close > image {
 		margin-top: 1px;
@@ -59,16 +54,41 @@
 	&-pending { opacity: 0.5; }
 	&-active { font-weight: bold; }
 }
+#TabsToolbar, #toolbar-menubar, #tabgroupsbtn-bar-toolbar {
+	#tabgroupsbtn-btn-menutab > image {
+		margin: 0 !important;
+		padding-left: 4px !important;
+		padding-right: 4px !important;
+	}
+}
 
 #tabgroupsbtn-bar {
 	@icon: "tab";
 	@add-placeholder();
+	&-tabs {
+		// white line on the right of the tabs
+		& > .tabs-right, & > .tabs-left { display: none; }
+	}
 }
 .tabgroupsbtn-bar {
-	&-button {
+	&-button, &-manual {
 		@show-label();
+		@hide-image();
+		padding: 3px 4px;
+		background-color: rgba(205, 230, 254,0);
+		background-clip: padding-box;
+		border: 1px solid;
+		border-color: rgba(51, 153, 255, 0);
 	}
-	&-manual {
-		@show-label();
+	// toolbar in titlebar area
+	&-toolbar-transparent {
+		background-color: transparent !important;
+		// space for window controls
+		padding-right: 100px;
 	}
+}
+
+// remove top margin from tabstoolbar when the tabgroupsbtn toolbar is above it
+.tabstoolbar-nomargin {
+	margin-top: 0 !important;
 }

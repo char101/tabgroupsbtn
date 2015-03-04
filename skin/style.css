@@ -6,11 +6,11 @@
 }
 toolbarpaletteitem > #tabgroupsbtn-btn > #tabgroupsbtn-btn-placeholder {
   display: -moz-box;
-  list-style-image: url("chrome://tabgroupsbtn/content/group.png");
+  list-style-image: url("chrome://tabgroupsbtn/skin/group.png");
 }
 toolbarpaletteitem[place="palette"] > #tabgroupsbtn-btn > #tabgroupsbtn-btn-placeholder,
 #tabgroupsbtn-btn[cui-areatype="menu-panel"] > #tabgroupsbtn-btn-placeholder {
-  list-style-image: url("chrome://tabgroupsbtn/content/group32.png");
+  list-style-image: url("chrome://tabgroupsbtn/skin/group32.png");
 }
 toolbarpaletteitem > #tabgroupsbtn-btn > #tabgroupsbtn-btn-container {
   display: none;
@@ -33,12 +33,6 @@ toolbarpaletteitem > #tabgroupsbtn-btn > #tabgroupsbtn-btn-container {
 #tabgroupsbtn-btn-menutab > image {
   border-left: 1px solid rgba(128, 128, 128, 0.5);
 }
-#tabgroupsbtn-btn-menutab #TabsToolbar,
-#toolbar-menubar > #tabgroupsbtn-btn-menutab > image {
-  margin: 0 !important;
-  padding-left: 4px !important;
-  padding-right: 4px !important;
-}
 #tabgroupsbtn-btn-close > image {
   margin-top: 1px;
   padding-left: 0 !important;
@@ -56,6 +50,13 @@ toolbarpaletteitem > #tabgroupsbtn-btn > #tabgroupsbtn-btn-container {
 .tabgroupsbtn-btn-active {
   font-weight: bold;
 }
+#TabsToolbar #tabgroupsbtn-btn-menutab > image,
+#toolbar-menubar #tabgroupsbtn-btn-menutab > image,
+#tabgroupsbtn-bar-toolbar #tabgroupsbtn-btn-menutab > image {
+  margin: 0 !important;
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+}
 #tabgroupsbtn-bar > #tabgroupsbtn-bar-placeholder {
   display: none;
 }
@@ -64,18 +65,39 @@ toolbarpaletteitem > #tabgroupsbtn-btn > #tabgroupsbtn-btn-container {
 }
 toolbarpaletteitem > #tabgroupsbtn-bar > #tabgroupsbtn-bar-placeholder {
   display: -moz-box;
-  list-style-image: url("chrome://tabgroupsbtn/content/tab.png");
+  list-style-image: url("chrome://tabgroupsbtn/skin/tab.png");
 }
 toolbarpaletteitem[place="palette"] > #tabgroupsbtn-bar > #tabgroupsbtn-bar-placeholder,
 #tabgroupsbtn-bar[cui-areatype="menu-panel"] > #tabgroupsbtn-bar-placeholder {
-  list-style-image: url("chrome://tabgroupsbtn/content/tab32.png");
+  list-style-image: url("chrome://tabgroupsbtn/skin/tab32.png");
 }
 toolbarpaletteitem > #tabgroupsbtn-bar > #tabgroupsbtn-bar-container {
   display: none;
 }
-.tabgroupsbtn-bar-button > label.toolbarbutton-text {
-  display: -moz-box;
+#tabgroupsbtn-bar-tabs > .tabs-right,
+#tabgroupsbtn-bar-tabs > .tabs-left {
+  display: none;
 }
+.tabgroupsbtn-bar-button,
+.tabgroupsbtn-bar-manual {
+  padding: 3px 4px;
+  background-color: rgba(205, 230, 254, 0);
+  background-clip: padding-box;
+  border: 1px solid;
+  border-color: rgba(51, 153, 255, 0);
+}
+.tabgroupsbtn-bar-button > label.toolbarbutton-text,
 .tabgroupsbtn-bar-manual > label.toolbarbutton-text {
   display: -moz-box;
+}
+.tabgroupsbtn-bar-button > image,
+.tabgroupsbtn-bar-manual > image {
+  display: none;
+}
+.tabgroupsbtn-bar-toolbar-transparent {
+  background-color: transparent !important;
+  padding-right: 100px;
+}
+.tabstoolbar-nomargin {
+  margin-top: 0 !important;
 }

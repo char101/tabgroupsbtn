@@ -1,7 +1,38 @@
 "use strict";
-require("utils");
 
-exports.refresh = function refresh(win=null, group=null) {
+let EXPORTED_SYMBOLS = [
+	"refresh",
+	"registerWidgets"
+];
+
+const Cu = Components.utils;
+Cu.import("resource://gre/modules/devtools/Console.jsm");
+Cu.import("resource:///modules/CustomizableUI.jsm");
+Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
+Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
+Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
+Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
+
+function isInsideToolbar(win) {
+	let widget = win.document.getElementById("tabgroupsbtn-btn-menu");
+	if (widget) {
+		let element = widget;
+		for (let i = 0; i < 100; ++i) {
+			let parent = element.parentNode;
+			if (! parent)
+				break;
+			if (parent.tagName === "toolbar") {
+				if (parent.id == "tabgroupsbtn-bar-toolbar")
+					return true
+				break;
+			}
+			element = parent;
+		}
+	}
+	return false;
+}
+
+function refresh(win=null, group=null) {
 	win = win || getActiveWindow();
 	if (! win)
 		return;
@@ -10,7 +41,7 @@ exports.refresh = function refresh(win=null, group=null) {
 		return;
 	let widget = win.document.getElementById("tabgroupsbtn-btn-menu");
 	if (widget)
-		widget.setAttribute("label", getGroupTitle(group));
+		widget.setAttribute("label", isInsideToolbar(win) ? "Groups" : getGroupTitle(group));
 }
 
 function showTabs(popup) {
@@ -79,7 +110,7 @@ function showGroups(menu, showtabs=false) {
 	}
 }
 
-exports.registerWidgets = function registerWidgets() {
+function registerWidgets() {
 	CustomizableUI.createWidget({
 		id: "tabgroupsbtn-btn", // should match the returned element id
 		type: "custom",
@@ -134,7 +165,7 @@ exports.registerWidgets = function registerWidgets() {
 						id: "tabgroupsbtn-btn-menutab",
 						type: "menu",
 						class: "toolbarbutton-1",
-						image: "chrome://tabgroupsbtn/content/menutab.png"
+						image: "chrome://tabgroupsbtn/skin/menutab.png"
 					}, {
 						mouseover: e => {
 							if (getPref("mouseover")) {
@@ -157,7 +188,7 @@ exports.registerWidgets = function registerWidgets() {
 				let closebtn = createElement(doc, "toolbarbutton", {
 						id: "tabgroupsbtn-btn-close",
 						class: "toolbarbutton-1",
-						image: "chrome://tabgroupsbtn/content/close.png"
+						image: "chrome://tabgroupsbtn/skin/close.png"
 					}, {
 						command: event => {
 							let win = getActiveWindow();
@@ -181,7 +212,7 @@ exports.registerWidgets = function registerWidgets() {
 				let newbtn = createElement(doc, "toolbarbutton", {
 						id: "tabgroupsbtn-btn-new",
 						class: "toolbarbutton-1",
-						image: "chrome://tabgroupsbtn/content/new.png"
+						image: "chrome://tabgroupsbtn/skin/new.png"
 					}, {
 						command: event => {
 							let title = prompt("Create New Group", "Name:");
@@ -221,7 +252,7 @@ exports.registerWidgets = function registerWidgets() {
 			setCustomized(widget);
 			let win = getActiveWindow();
 			if (win)
-				updateGroup(win, getActiveGroup(win));
+				refresh(win, getActiveGroup(win));
 		},
 		onWidgetMoved: (widget, area, oldpos, newpos) => setCustomized(widget),
 		onWidgetRemoved: (widget, area) => setCustomized(widget),
