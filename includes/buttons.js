@@ -1,4 +1,7 @@
-function updateGroup(win=null, group=null) {
+"use strict";
+require("utils");
+
+exports.refresh = function refresh(win=null, group=null) {
 	win = win || getActiveWindow();
 	if (! win)
 		return;
@@ -76,7 +79,7 @@ function showGroups(menu, showtabs=false) {
 	}
 }
 
-function registerButtons() {
+exports.registerWidgets = function registerWidgets() {
 	CustomizableUI.createWidget({
 		id: "tabgroupsbtn-btn", // should match the returned element id
 		type: "custom",
@@ -111,7 +114,7 @@ function registerButtons() {
 						}
 					},
 					mouseover: e => {
-						if (getPref("mouseover", false)) {
+						if (getPref("mouseover")) {
 							let el = e.target;
 							if (el.getAttribute("id") !== "tabgroupsbtn-menu-button")
 								return;
@@ -126,7 +129,7 @@ function registerButtons() {
 			);
 			container.appendChild(menubtn);
 
-			if (! getPref("menutabbtn-disabled", false)) {
+			if (! getPref("menutabbtn-disabled")) {
 				let menutabbtn = createElement(doc, "toolbarbutton", {
 						id: "tabgroupsbtn-btn-menutab",
 						type: "menu",
@@ -134,7 +137,7 @@ function registerButtons() {
 						image: "chrome://tabgroupsbtn/content/menutab.png"
 					}, {
 						mouseover: e => {
-							if (getPref("mouseover", false)) {
+							if (getPref("mouseover")) {
 								let el = e.target;
 								if (el.getAttribute("id") !== "tabgroupsbtn-menutab-button")
 									return;
@@ -150,7 +153,7 @@ function registerButtons() {
 				container.appendChild(menutabbtn);
 			}
 
-			if (! getPref("closebtn-disabled", false)) {
+			if (! getPref("closebtn-disabled")) {
 				let closebtn = createElement(doc, "toolbarbutton", {
 						id: "tabgroupsbtn-btn-close",
 						class: "toolbarbutton-1",
@@ -174,7 +177,7 @@ function registerButtons() {
 				container.appendChild(closebtn);
 			}
 
-			if (! getPref("newbtn-disabled", false)) {
+			if (! getPref("newbtn-disabled")) {
 				let newbtn = createElement(doc, "toolbarbutton", {
 						id: "tabgroupsbtn-btn-new",
 						class: "toolbarbutton-1",
