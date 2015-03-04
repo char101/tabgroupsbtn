@@ -1,5 +1,7 @@
+"use strict";
+
 // previousGroupId defined in bootstrap
-function addEventListener(win) {
+exports.register = function register(win) {
 	let tabcontainer = win.gBrowser.tabContainer;
 
 	function onTabSelect(event) {
