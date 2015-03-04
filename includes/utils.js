@@ -118,3 +118,29 @@ function clearPopup(popup) {
 function clearTabs(tabs) {
 	clearChildren(tabs);
 }
+
+function openLinkInGroup(win, link, groupid) {
+	selectGroup(win, groupid);
+
+	let tb = win.gBrowser;
+	tb.selectedTab = tb.addTab(link.href);
+}
+
+function openLinkInNewGroup(win, link) {
+	selectGroup(win, getGroupItems(win).newGroup().id);
+	win.gBrowser.loadURI(link.href);
+}
+
+function moveTabToGroup(win, tab, groupid) {
+	let activegroup = getActiveGroup(win);
+	if (activegroup.getChildren().length == 1)
+		activegroup.newTab();
+	getGroupItems(win).moveTabToGroupItem(tab, groupid);
+}
+
+function moveTabToNewGroup(win, tab) {
+	let GI = getGroupItems(win);
+	let group = GI.newGroup();
+	GI.moveTabToGroupItem(tab, group.id);
+	selectGroup(win, group.id);
+}
