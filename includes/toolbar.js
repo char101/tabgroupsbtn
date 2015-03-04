@@ -4,7 +4,7 @@ function isToolbarUpdateRequired(groups, container) {
 	if (groups.length !== items.length)
 		return true;
 
-	if (getPref("bar.tab", true)) {
+	if (getPref("bar.tab")) {
 		for (let i = 0, n = groups.length; i < n; ++i) {
 			let [id, title, active, group] = groups[i];
 			let tab = items[i];
@@ -16,7 +16,7 @@ function isToolbarUpdateRequired(groups, container) {
 		for (let i = 0, n = groups.length; i < n; ++i) {
 			let [id, title, active, group] = groups[i];
 			let btn = items[i];
-			if (id.toString() !== tab.value || active !== btn.checked)
+			if (id.toString() !== btn.value || active !== btn.checked)
 				return true;
 		}
 	}
@@ -26,7 +26,7 @@ function isToolbarUpdateRequired(groups, container) {
 
 function clearToolbarSelectedState(container) {
 	let children = container.children;
-	if (getPref("bar.tab", true)) {
+	if (getPref("bar.tab")) {
 		for (let i = 0, n = children.length; i < n; ++i) {
 			let tab = children[i];
 			if (tab.selected) {
@@ -38,14 +38,14 @@ function clearToolbarSelectedState(container) {
 		for (let i = 0, n = children.length; i < n; ++i) {
 			let btn = children[i];
 			if (btn.checked) {
-				tab.checked = false;
+				btn.checked = false;
 				break;
 			}
 		}
 	}
 }
 
-function refreshTabs(win=null) {
+exports.refresh = function refresh(win=null) {
 	if (win === null)
 		win = getActiveWindow();
 	let doc = win.document;
@@ -57,7 +57,7 @@ function refreshTabs(win=null) {
 		if (isToolbarUpdateRequired(groups, items)) {
 			// console.log("refreshTabs");
 
-			if (getPref("bar.tab", true)) {
+			if (getPref("bar.tab")) {
 				clearTabs(items);
 
 				for (let gr of groups) {
@@ -86,6 +86,7 @@ function refreshTabs(win=null) {
 						class: "toolbarbutton-1 tabgroupsbtn-bar-button",
 						label: title,
 						checked: active,
+						value: id
 					}, {
 						command: e => {
 							clearToolbarSelectedState(items);
@@ -100,7 +101,7 @@ function refreshTabs(win=null) {
 	});
 }
 
-function manualRefreshTabs(win) {
+exports.manualRefresh = function manualRefresh(win) {
 	if (win === null)
 		win = getActiveWindow();
 	let doc = win.document;
@@ -118,7 +119,7 @@ function manualRefreshTabs(win) {
 	ti.insertBefore(btn, ti.firstChild);
 }
 
-function registerToolbar() {
+exports.registerWidget = function registerWidget() {
 	CustomizableUI.createWidget({
 		id: "tabgroupsbtn-bar",
 		type: "custom",
@@ -147,7 +148,7 @@ function registerToolbar() {
 			});
 			ti.appendChild(container);
 
-			if (getPref("bar.tab", true)) {
+			if (getPref("bar.tab")) {
 				let tabbox = createElement(doc, "tabbox", {
 					id: "tabgroupsbtn-bar-tabbox",
 					flex: 1
@@ -196,7 +197,7 @@ function registerToolbar() {
 	unload(() => CustomizableUI.removeListener(listener));
 }
 
-function createToolbar(win) {
+exports.createToolbar = function createToolbar(win) {
 	let doc = win.document;
 	let toolbar = createElement(doc, "toolbar", {
 		id: "tabgroupsbtn-bar-toolbar",
@@ -208,7 +209,7 @@ function createToolbar(win) {
 		iconsize: "small",
 		customizable: true
 	});
-	doc.getElementById("navigator-toolbox").appendChild(toolbar);
+	doc.getElementById("navigator-toolbox").insertBefore(toolbar, doc.getElementById("TabsToolbar"));
 	unload(() => {
 		let tb = doc.getElementById("tabgroupsbtn-bar-toolbar");
 		if (tb)
