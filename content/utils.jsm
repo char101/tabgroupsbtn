@@ -19,8 +19,12 @@ let EXPORTED_SYMBOLS = [
 	"openLinkInNewGroup",
 	"openLinkInGroup",
 	// tab
-	"moveTabToGroupItem",
+	"selectTab",
+	"moveTabToGroup",
 	"moveTabToNewGroup",
+	// event,
+	"listen",
+	"triggerEvent",
 ];
 
 const Cc = Components.classes;
@@ -28,6 +32,9 @@ const Ci = Components.interfaces;
 const Cu = Components.utils;
 Cu.import("resource://gre/modules/Services.jsm");
 const FM = Cc["@mozilla.org/focus-manager;1"].getService(Ci.nsIFocusManager);
+Cu.import("resource://gre/modules/devtools/Console.jsm");
+Cu.import("chrome://tabgroupsbtn/content/addon.jsm")
+Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm")
 
 function getActiveWindow() Services.wm.getMostRecentWindow("navigator:browser");
 
@@ -62,7 +69,7 @@ function prompt(title, text, value) {
 	let input = {value: value};
 	let check = {value: false};
 	if (ps.prompt(getActiveWindow(), title, text, input, null, check))
-		return input.value;
+		return input.value; // "" if blank
 }
 
 function confirm(title, text) Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService).confirm(getActiveWindow(), title, text);
@@ -106,11 +113,17 @@ function openLinkInNewGroup(win, link) {
 	win.gBrowser.loadURI(link.href);
 }
 
-function moveTabToGroup(win, tab, groupid) {
+function selectTab(win, tab) {
+	win.gBrowser.selectedTab = tab;
+}
+
+function moveTabToGroup(win, tab, groupid, inBackground=false) {
 	let activegroup = getActiveGroup(win);
 	if (activegroup.getChildren().length == 1)
 		activegroup.newTab();
 	getGroupItems(win).moveTabToGroupItem(tab, groupid);
+	if (! inBackground)
+		selectTab(win, tab);
 }
 
 function moveTabToNewGroup(win, tab) {
@@ -118,4 +131,13 @@ function moveTabToNewGroup(win, tab) {
 	let group = GI.newGroup();
 	GI.moveTabToGroupItem(tab, group.id);
 	selectGroup(win, group.id);
+}
+
+function listen(element, event, handler, capture=false) {
+	element.addEventListener(event, handler, capture);
+	unload(() => element.removeEventListener(event, handler, capture));
+}
+
+function triggerEvent(win, event) {
+	win.dispatchEvent(win.CustomEvent(event));
 }

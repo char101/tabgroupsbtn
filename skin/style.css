@@ -27,12 +27,6 @@ toolbarpaletteitem > #tabgroupsbtn-btn > #tabgroupsbtn-btn-container {
 #tabgroupsbtn-btn-menu > label.toolbarbutton-text {
   font-weight: bold;
 }
-#tabgroupsbtn-btn-menutab > dropmarker {
-  display: none;
-}
-#tabgroupsbtn-btn-menutab > image {
-  border-left: 1px solid rgba(128, 128, 128, 0.5);
-}
 #tabgroupsbtn-btn-close > image {
   margin-top: 1px;
   padding-left: 0 !important;
@@ -49,10 +43,11 @@ toolbarpaletteitem > #tabgroupsbtn-btn > #tabgroupsbtn-btn-container {
 }
 .tabgroupsbtn-btn-active {
   font-weight: bold;
+  color: steelblue;
 }
-#TabsToolbar #tabgroupsbtn-btn-menutab > image,
-#toolbar-menubar #tabgroupsbtn-btn-menutab > image,
-#tabgroupsbtn-bar-toolbar #tabgroupsbtn-btn-menutab > image {
+#TabsToolbar #tabgroupsbtn-btn-menu > image,
+#toolbar-menubar #tabgroupsbtn-btn-menu > image,
+#tabgroupsbtn-bar-toolbar #tabgroupsbtn-btn-menu > image {
   margin: 0 !important;
   padding-left: 4px !important;
   padding-right: 4px !important;
@@ -78,6 +73,15 @@ toolbarpaletteitem > #tabgroupsbtn-bar > #tabgroupsbtn-bar-container {
 #tabgroupsbtn-bar-tabs > .tabs-left {
   display: none;
 }
+#tabgroupsbtn-bar-toolbar #tabgroupsbtn-btn-menu > image {
+  display: -moz-box;
+}
+#tabgroupsbtn-bar-toolbar #tabgroupsbtn-btn-menu > label.toolbarbutton-text {
+  display: none;
+}
+#tabgroupsbtn-bar-toolbar #tabgroupsbtn-btn-new > image {
+  border-left: 0;
+}
 .tabgroupsbtn-bar-button,
 .tabgroupsbtn-bar-manual {
   padding: 3px 4px;
@@ -96,7 +100,23 @@ toolbarpaletteitem > #tabgroupsbtn-bar > #tabgroupsbtn-bar-container {
 }
 .tabgroupsbtn-bar-toolbar-transparent {
   background-color: transparent !important;
+}
+.tabgroupsbtn-bar-toolbar-windowbuttons {
   padding-right: 100px;
+}
+.tabgroupsbtn-bar-separator {
+  -moz-appearance: none;
+  -moz-border-left-colors: transparent transparent rgba(128, 128, 128, 0.5);
+}
+.tabgroupsbtn-bar-toolbar-transparent .tabgroupsbtn-bar-separator {
+  -moz-appearance: none;
+  -moz-border-left-colors: transparent transparent rgba(128, 128, 128, 0.75);
+  -moz-border-right-colors: transparent transparent rgba(255, 255, 255, 0.5);
+}
+#main-window[tabsintitlebar][sizemode="normal"]:not([inFullscreen])[chromehidden~="menubar"] #toolbar-menubar + #tabgroupsbtn-bar-toolbar,
+#main-window[tabsintitlebar][sizemode="normal"]:not([inFullscreen]) #toolbar-menubar[autohide="true"][inactive] + #tabgroupsbtn-bar-toolbar {
+  margin-top: 18px;
+  padding-right: 0;
 }
 .tabstoolbar-nomargin {
   margin-top: 0 !important;

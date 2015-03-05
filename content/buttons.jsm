@@ -2,7 +2,8 @@
 
 let EXPORTED_SYMBOLS = [
 	"refresh",
-	"registerWidgets"
+	"registerWidgets",
+	"createContextMenu",
 ];
 
 const Cu = Components.utils;
@@ -12,6 +13,7 @@ Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
 Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
 Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
 Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
+Cu.import("chrome://tabgroupsbtn/content/ui.jsm");
 
 function isInsideToolbar(win) {
 	let widget = win.document.getElementById("tabgroupsbtn-btn-menu");
@@ -41,73 +43,64 @@ function refresh(win=null, group=null) {
 		return;
 	let widget = win.document.getElementById("tabgroupsbtn-btn-menu");
 	if (widget)
-		widget.setAttribute("label", isInsideToolbar(win) ? "Groups" : getGroupTitle(group));
+		widget.setAttribute("label", getGroupTitle(group));
 }
 
-function showTabs(popup) {
-	let groupid = popup.parentNode.getAttribute("value");
-	let win = getActiveWindow();
-	let doc = win.document;
-	let group = getGroup(win, groupid);
-
-	clearPopup(popup);
-	for (let ti of group.getChildren()) {
-		let tab = ti.tab;
-		let mi = createElement(doc, "menuitem", {
-				label: tab.label,
-				image: tab.image,
-				class: "menuitem-iconic" + (tab.hasAttribute("pending") ? " tabgroupsbtn-btn-pending" : "")
-			}, {
-				command: e => win.gBrowser.selectedTab = tab
-			}
-		);
-		popup.appendChild(mi);
-	}
-}
-
-function showGroups(menu, showtabs=false) {
+function showGroups(menu) {
 	let win = getActiveWindow();
 	let doc = win.document;
 
 	clearPopup(menu)
+
+	let hasNamedGroup = false;
 	let separatoradded = false;
 	for (let gr of getGroupList(win)) {
 		let [id, title, active, group] = gr;
 
-		if (! separatoradded && group.getTitle() === "") {
+		let plainTitle = group.getTitle();
+		if (! hasNamedGroup && plainTitle !== "")
+			hasNamedGroup = true;
+		if (! separatoradded && hasNamedGroup && plainTitle === "") {
 			menu.appendChild(doc.createElement("menuseparator"));
 			separatoradded = true;
 		}
 
-		if (! showtabs) {
-			menu.appendChild(createElement(doc, "menuitem", {
-					value: id,
-					class: "menuitem-iconic",
-					image: getGroupImage(group),
-					label: title,
-					acceltext: group.getChildren().length,
-					disabled: active
-				}, {
-					click: e => e.stopPropagation(),
-					command: active ? undefined : e => selectGroup(win, id)
-				}
-			))
-		} else {
-			if (group.getChildren().length > 0)
-				menu.appendChild(createElement(doc, "menu", {
-						value: id,
-						class: "menu-iconic" + (active ? " tabgroupsbtn-btn-active" : ""),
-						image: getGroupImage(group),
-						label: title,
-						acceltext: group.getChildren().length
-					},
-					null,
-					createElement(doc, "menupopup", null, {popupshowing: e => { showTabs(e.target); e.stopPropagation(); }})
-				));
-			else
-				menu.appendChild(createElement(doc, "menuitem", {label: title, acceltext: 0, disabled: true}));
-		}
+		menu.appendChild(createElement(doc, "menuitem", {
+				value: id,
+				class: "menuitem-iconic",
+				image: getGroupImage(group),
+				label: title,
+				acceltext: group.getChildren().length,
+				disabled: active,
+				context: "tabgroupsbtn-btn-menu-context",
+			}, {
+				click: e => e.stopPropagation(),
+				command: active ? undefined : e => selectGroup(win, id)
+			}
+		));
 	}
+}
+
+function createContextMenu(win) {
+	let doc = win.document;
+	let popupset = doc.getElementById("mainPopupSet");
+
+	let context = createElement(doc, "menupopup", {id: "tabgroupsbtn-btn-menu-context"}, {popupshowing: e => showGroupContextMenu(e.target, e.target.triggerNode.getAttribute("value"))});
+	popupset.appendChild(context);
+
+	unload(() => popupset.removeChild(context));
+}
+
+function createWidgetListener() {
+	let listener = {
+		onWidgetAdded: (widget, area, position) => {
+			let win = getActiveWindow();
+			if (win)
+				refresh(win, getActiveGroup(win));
+		}
+	};
+	CustomizableUI.addListener(listener);
+	unload(() => CustomizableUI.removeListener(listener));
 }
 
 function registerWidgets() {
@@ -135,7 +128,8 @@ function registerWidgets() {
 					id: "tabgroupsbtn-btn-menu",
 					type: "menu",
 					class: "toolbarbutton-1",
-					label: "Tab Groups"
+					label: "Tab Groups",
+					image: "chrome://tabgroupsbtn/skin/menutab.png"
 				}, {
 					click: event => {
 						if (event.button === 2) { // right click
@@ -149,9 +143,6 @@ function registerWidgets() {
 							let el = e.target;
 							if (el.getAttribute("id") !== "tabgroupsbtn-menu-button")
 								return;
-							let menutabbtn = getActiveWindow().document.getElementById("tabgroupsbtn-menutab-button");
-							if (menutabbtn && menutabbtn.open)
-								menutabbtn.open = false;
 							el.open = true;
 						}
 					}
@@ -159,30 +150,6 @@ function registerWidgets() {
 				createElement(doc, "menupopup", null, {popupshowing: e => initPanorama().then(() => showGroups(e.target))})
 			);
 			container.appendChild(menubtn);
-
-			if (! getPref("menutabbtn-disabled")) {
-				let menutabbtn = createElement(doc, "toolbarbutton", {
-						id: "tabgroupsbtn-btn-menutab",
-						type: "menu",
-						class: "toolbarbutton-1",
-						image: "chrome://tabgroupsbtn/skin/menutab.png"
-					}, {
-						mouseover: e => {
-							if (getPref("mouseover")) {
-								let el = e.target;
-								if (el.getAttribute("id") !== "tabgroupsbtn-menutab-button")
-									return;
-								let menubtn = getActiveWindow().document.getElementById("tabgroupsbtn-menu-button");
-								if (menubtn && menubtn.open)
-									menubtn.open = false;
-								e.target.open = true;
-							}
-						}
-					},
-					createElement(doc, "menupopup", null, {popupshowing: e => initPanorama().then(() => showGroups(e.target, true))})
-				);
-				container.appendChild(menutabbtn);
-			}
 
 			if (! getPref("closebtn-disabled")) {
 				let closebtn = createElement(doc, "toolbarbutton", {
@@ -195,12 +162,7 @@ function registerWidgets() {
 							initPanorama(win).then(() => {
 								if (getGroupItems(win).groupItems.length == 1)
 									return;
-								let group = getActiveGroup(win);
-								let title = getGroupTitle(group);
-								let ntabs = group.getChildren().length;
-								let s = ntabs > 1 ? 's' : '';
-								if (confirm("Confirm Close Tab Group", `You are about to close tab group ${title} (${ntabs} tab${s}). Are you sure you want to continue?`))
-									closeGroup(win, getActiveGroup(win).id);
+								closeGroup(win, null, true);
 							});
 						}
 					}
@@ -215,8 +177,8 @@ function registerWidgets() {
 						image: "chrome://tabgroupsbtn/skin/new.png"
 					}, {
 						command: event => {
-							let title = prompt("Create New Group", "Name:");
-							if (title)
+							let title = prompt("Create New Group", "Enter Group Title:\n(press OK to create unnamed group)");
+							if (title !== undefined) // empty string = create unnamed group
 								initPanorama().then(() => createGroup(title));
 						},
 						click: event => {
@@ -240,23 +202,5 @@ function registerWidgets() {
 	});
 	unload(() => CustomizableUI.destroyWidget("tabgroupsbtn-btn"));
 
-	if (! getPref("customized"))
-		CustomizableUI.addWidgetToArea("tabgroupsbtn-btn", CustomizableUI.AREA_NAVBAR, 0);
-
-	let setCustomized = function(widget) {
-		if (widget == "tabgroupsbtn-btn")
-			setPref("customized", true);
-	};
-	let listener = {
-		onWidgetAdded: (widget, area, position) => {
-			setCustomized(widget);
-			let win = getActiveWindow();
-			if (win)
-				refresh(win, getActiveGroup(win));
-		},
-		onWidgetMoved: (widget, area, oldpos, newpos) => setCustomized(widget),
-		onWidgetRemoved: (widget, area) => setCustomized(widget),
-	};
-	CustomizableUI.addListener(listener);
-	unload(() => CustomizableUI.removeListener(listener));
+	createWidgetListener();
 }

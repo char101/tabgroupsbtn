@@ -1,12 +1,18 @@
 @hide-image: {
 	& > image { display: none; }
 };
+@show-image: {
+	& > image { display: -moz-box; }
+};
 // force hiding dropmarker on linux
 @hide-dropmarker: {
 	& > dropmarker { display: none; }
 };
 @show-label: {
 	& > label.toolbarbutton-text { display: -moz-box; }
+};
+@hide-label: {
+	& > label.toolbarbutton-text { display: none; }
 };
 @add-placeholder: {
 	& > &-placeholder {
@@ -34,10 +40,6 @@
 		@show-label();
 		& > label.toolbarbutton-text { font-weight: bold; }
 	}
-	&-menutab {
-		@hide-dropmarker();
-		& > image { border-left: 1px solid rgba(128, 128, 128, 0.5); }
-	}
 	&-close > image {
 		margin-top: 1px;
 		padding-left: 0 !important;
@@ -52,10 +54,10 @@
 }
 .tabgroupsbtn-btn {
 	&-pending { opacity: 0.5; }
-	&-active { font-weight: bold; }
+	&-active { font-weight: bold; color: steelblue; }
 }
 #TabsToolbar, #toolbar-menubar, #tabgroupsbtn-bar-toolbar {
-	#tabgroupsbtn-btn-menutab > image {
+	#tabgroupsbtn-btn-menu > image {
 		margin: 0 !important;
 		padding-left: 4px !important;
 		padding-right: 4px !important;
@@ -68,6 +70,17 @@
 	&-tabs {
 		// white line on the right of the tabs
 		& > .tabs-right, & > .tabs-left { display: none; }
+	}
+	&-toolbar {
+		#tabgroupsbtn-btn-menu {
+			@show-image();
+			@hide-label();
+		}
+		#tabgroupsbtn-btn-new {
+			& > image {
+				border-left: 0;
+			}
+		}
 	}
 }
 .tabgroupsbtn-bar {
@@ -83,9 +96,25 @@
 	// toolbar in titlebar area
 	&-toolbar-transparent {
 		background-color: transparent !important;
+	}
+	&-toolbar-windowbuttons {
 		// space for window controls
 		padding-right: 100px;
 	}
+	&-separator {
+		-moz-appearance: none;
+		-moz-border-left-colors: transparent transparent rgba(128, 128, 128, 0.5);
+	}
+	&-toolbar-transparent &-separator {
+		-moz-appearance: none;
+		-moz-border-left-colors: transparent transparent rgba(128, 128, 128, 0.75);
+		-moz-border-right-colors: transparent transparent rgba(255, 255, 255, 0.5);
+	}
+}
+#main-window[tabsintitlebar][sizemode="normal"]:not([inFullscreen])[chromehidden~="menubar"] #toolbar-menubar + #tabgroupsbtn-bar-toolbar,
+#main-window[tabsintitlebar][sizemode="normal"]:not([inFullscreen]) #toolbar-menubar[autohide="true"][inactive] + #tabgroupsbtn-bar-toolbar {
+  margin-top: 18px;
+  padding-right: 0;
 }
 
 // remove top margin from tabstoolbar when the tabgroupsbtn toolbar is above it

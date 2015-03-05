@@ -70,15 +70,13 @@ function showTabContextMenu(win, popup) {
 	clearPopup(popup);
 	for (let gr of getGroupList(win)) {
 		let [id, title, active] = gr;
-		if (! active) {
-			let mi = createElement(doc, "menuitem", {
-				value: id,
-				label: title
-			}, {
-				command: e => moveTabToGroup(win, tab, id)
-			});
-			popup.appendChild(mi);
-		}
+		popup.appendChild(createElement(doc, "menuitem", {
+			value: id,
+			label: title,
+			disabled: active
+		}, {
+			command: e => moveTabToGroup(win, tab, id, e.ctrlKey)
+		}));
 	}
 	if (getActiveGroup(win).getChildren().length > 1) {
 		popup.appendChild(createElement(doc, "menuseparator"));
@@ -116,13 +114,15 @@ function addTabContextMenu(win) {
 function registerEventListeners(win) {
 	let tabcontainer = win.gBrowser.tabContainer;
 
-	function onTabSelect(event) {
+	function refreshGroups(event) {
+		// console.log(event);
 		let activeGroup = getActiveGroup(win);
 		buttons.refresh(win, getActiveGroup(win));
 		toolbar.refresh(win);
 	}
-	tabcontainer.addEventListener("select", onTabSelect);
-	unload(() => tabcontainer.removeEventListener("select", onTabSelect));
+	listen(tabcontainer, "select", refreshGroups);
+	listen(win, "tabgroupsbtn-group-renamed", refreshGroups);
+	listen(win, "tabgroupsbtn-group-closed", refreshGroups);
 
 	// a tab group is removed when the last tab is closed
 	// we want to prevent tabview from showing when the last tab is closed

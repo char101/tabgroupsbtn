@@ -12,6 +12,8 @@ let toolbar = {}, buttons = {}, window = {}, tabgroups = {}, firstWindow = true;
 
 function processWindow(win) {
 	toolbar.createToolbar(win);
+	buttons.createContextMenu(win);
+	toolbar.createContextMenu(win);
 
 	if (IS_LINUX && firstWindow) {
 		toolbar.manualRefresh(win);
@@ -54,6 +56,6 @@ function startup(data, reason) {
 }
 function shutdown(data, reason) {
 	unload();
-	for (let module of ["addon", "prefs", "toolbar", "buttons", "window", "tabgroups", "utils"])
+	for (let module of ["addon", "prefs", "toolbar", "buttons", "window", "tabgroups", "utils", "ui"])
 		Cu.unload(`chrome://tabgroupsbtn/content/${module}.jsm`);
 }

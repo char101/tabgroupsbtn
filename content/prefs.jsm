@@ -24,8 +24,6 @@ function getPref(key, defval=null) {
 			return prefBranch.getIntPref(key);
 		case prefBranch.PREF_INVALID:
 			switch (key) {
-				case "customized" : return false;
-				case "menutabbtn-disabled": return false;
 				case "closebtn-disabled": return false;
 				case "newbtn-disabled": return false;
 				case "mouseover": return false;
