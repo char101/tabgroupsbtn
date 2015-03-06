@@ -42,8 +42,7 @@ toolbarpaletteitem > #tabgroupsbtn-btn > #tabgroupsbtn-btn-container {
   opacity: 0.5;
 }
 .tabgroupsbtn-btn-active {
-  font-weight: bold;
-  color: steelblue;
+  text-decoration: underline;
 }
 #TabsToolbar #tabgroupsbtn-btn-menu > image,
 #toolbar-menubar #tabgroupsbtn-btn-menu > image,
