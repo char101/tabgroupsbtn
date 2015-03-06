@@ -53,6 +53,7 @@ function unload(callback, container) {
 			callback();
 		} catch (ex) {
 			console.exception(ex);
+			logger.error(ex);
 		}
 	}
 	unloader.callback = callback;
@@ -89,6 +90,7 @@ function runOnWindows(callback, winType=null) {
 			callback(window);
 		} catch (ex) {
 			console.exception(ex);
+			logger.error(ex);
 		}
 	}
 
@@ -113,6 +115,7 @@ function watchWindows(callback, winType) {
 		}
 		catch (ex) {
 			console.exception(ex);
+			logger.error(ex);
 		}
 	}
 

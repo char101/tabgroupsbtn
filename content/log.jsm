@@ -7,7 +7,6 @@ let EXPORTED_SYMBOLS = [
 const Cu = Components.utils;
 const Ci = Components.interfaces;
 Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/devtools/Console.jsm");
 Cu.import("resource://gre/modules/Log.jsm");
 Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
 
@@ -17,7 +16,6 @@ let formatter = new Log.BasicFormatter();
 if (getPref("log-to-file")) {
 	let logfile = Services.dirsvc.get("TmpD", Ci.nsIFile);
 	logfile.append("tabgroupsbtn.log");
-	console.log("Logging to", logfile.path);
 	logger.addAppender(new Log.FileAppender(logfile.path, formatter));
 } else {
 	logger.addAppender(new Log.ConsoleAppender(formatter));

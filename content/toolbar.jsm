@@ -168,17 +168,17 @@ function registerWidgets() {
 			ti.appendChild(container);
 
 			if (! getPref("bar.button")) {
-				let tabbox = createElement(doc, "tabbox", {
-					id: "tabgroupsbtn-bar-tabbox",
-					flex: 1
-				});
-				container.appendChild(tabbox);
+				// let tabbox = createElement(doc, "tabbox", {
+				// 	id: "tabgroupsbtn-bar-tabbox",
+				// 	flex: 1
+				// });
+				// container.appendChild(tabbox);
 
 				let tabs = createElement(doc, "tabs", {
 					id: "tabgroupsbtn-bar-tabs",
 					flex: 1
 				});
-				tabbox.appendChild(tabs);
+				container.appendChild(tabs);
 
 				let scroll = createElement(doc, "arrowscrollbox", {
 					id: "tabgroupsbtn-bar-items",

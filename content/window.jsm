@@ -13,6 +13,7 @@ Cu.import("resource://gre/modules/devtools/Console.jsm");
 Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
 Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
 Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
+Cu.import("chrome://tabgroupsbtn/content/log.jsm");
 Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
 let buttons = Cu.import("chrome://tabgroupsbtn/content/buttons.jsm", {});
 let toolbar = Cu.import("chrome://tabgroupsbtn/content/toolbar.jsm", {});
@@ -122,9 +123,23 @@ function refreshGroups(win) {
 
 function cleanEmptyTabs(win) {
 	let tabbrowser = win.gBrowser;
-	let emptyTabs = tabbrowser.visibleTabs.filter(tab => ! (tab.getAttribute("selected") || tab.hasAttribute("busy") || tab.hasAttribute("pending") || tab.getAttribute("pinned")) && isBlank(win, tab));
-	// console.log("cleanEmptyTabs", emptyTabs);
-	emptyTabs.forEach(tab => tabbrowser.removeTab(tab));
+
+	// tabbrowser.visibleTabs sometimes include tabs from other group
+	// logger.info("cleanEmptyTabs: visibleTabs:", [for (tab of tabbrowser.visibleTabs) tab.label]);
+
+	let group = getActiveGroup(win);
+	if (! group) {
+		logger.warning("cleanEmptyTabs: getActiveGroup is undefined");
+		return;
+	}
+	let visibleTabs = [for (tabitem of group.getChildren()) tabitem.tab];
+	logger.info("cleanEmptyTabs: group visibleTabs:", [for (tab of visibleTabs) tab.label]);
+
+	if (visibleTabs.length > 1) {
+		let emptyTabs = visibleTabs.filter(tab => ! (tab.getAttribute("selected") || tab.hasAttribute("busy") || tab.hasAttribute("pending") || tab.getAttribute("pinned")) && isBlank(win, tab));
+		logger.info("cleanEmptyTabs", [for (tab of emptyTabs) tab.label]);
+		emptyTabs.forEach(tab => tabbrowser.removeTab(tab));
+	}
 }
 
 function registerEventListeners(win) {
