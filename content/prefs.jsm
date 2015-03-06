@@ -4,13 +4,11 @@ let EXPORTED_SYMBOLS = [
 	"prefBranch",
 	"getPref",
 	"setPref",
-	"registerPrefsObserver"
 ];
 
 const Cu = Components.utils;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/devtools/Console.jsm");
-Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
 
 let prefBranch = Services.prefs.getBranch("extensions.tabgroupsbtn.");
 
@@ -31,6 +29,8 @@ function getPref(key, defval=null) {
 				case "bar.position": return "top-last";
 				case "clean-empty-tabs": return false;
 				case "skip-pending": return false;
+				case "log-level": return 60;
+				case "log-to-file": return false;
 				default:
 					console.log("tabgroupsbtn: Unknown preference: " + key);
 					return undefined;
@@ -47,9 +47,4 @@ function setPref(key, value) {
 		case "number":
 			return prefBranch.setIntPref(key, value);
 	}
-}
-
-function registerPrefsObserver(observer) {
-	prefBranch.addObserver("", observer, false);
-	unload(() => prefBranch.removeObserver("", observer));
 }

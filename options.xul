@@ -20,5 +20,17 @@
 	<setting pref="extensions.tabgroupsbtn.clean-empty-tabs" type="bool" title="Extra: Close unused blank tab (i.e. blank tab other than selected tab)"/>
 	<setting pref="extensions.tabgroupsbtn.skip-pending" type="bool" title="Extra: Skip unloaded (pending) tab from being selected when after closing current tab"/>
 
+	<setting pref="extensions.tabgroupsbtn.log-level" type="menulist" title="Log level">
+		<menulist>
+			<menupopup>
+				<menuitem value="60" label="Error"/>
+				<menuitem value="50" label="Warning"/>
+				<menuitem value="40" label="Info"/>
+				<menuitem value="20" label="Debug"/>
+			</menupopup>
+		</menulist>
+	</setting>
+	<setting pref="extensions.tabgroupsbtn.log-to-file" type="bool" title="Log to file ([tempdir]/tabgroupsbtn.log)"/>
+
 	<setting title="To apply setting disable then enable the addon." type="control"/>
 </vbox>

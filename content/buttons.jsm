@@ -14,6 +14,7 @@ Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
 Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
 Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
 Cu.import("chrome://tabgroupsbtn/content/ui.jsm");
+Cu.import("chrome://tabgroupsbtn/content/log.jsm");
 
 function isInsideToolbar(win) {
 	let widget = win.document.getElementById("tabgroupsbtn-btn-menu");
@@ -200,7 +201,10 @@ function registerWidgets() {
 			return ti;
 		}
 	});
-	unload(() => CustomizableUI.destroyWidget("tabgroupsbtn-btn"));
+	unload(() => {
+		logger.info("CustomizableUI.destroyWidget(tabgroupsbtn-btn)");
+		CustomizableUI.destroyWidget("tabgroupsbtn-btn");
+	});
 
 	createWidgetListener();
 }

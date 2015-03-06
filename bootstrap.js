@@ -4,7 +4,6 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cu = Components.utils;
 Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/devtools/Console.jsm");
 
 const IS_LINUX = Services.appinfo.OS == 'Linux'; // Linux, WINNT, Mac?
 
@@ -41,6 +40,9 @@ function uninstall(data, reason) {
 		Services.prefs.getBranch("extensions.tabgroupsbtn.").deleteBranch("");
 }
 function startup(data, reason) {
+	Cu.import("chrome://tabgroupsbtn/content/log.jsm");
+	logger.info("startup", reason);
+
 	Cu.import("chrome://tabgroupsbtn/content/addon.jsm", addon);
 	Cu.import("chrome://tabgroupsbtn/content/prefs.jsm", prefs);
 	Cu.import("chrome://tabgroupsbtn/content/toolbar.jsm", toolbar);
@@ -51,13 +53,17 @@ function startup(data, reason) {
 	firstWindow = true;
 
 	addon.addStylesheet("style.css");
-	buttons.registerWidgets();
 	toolbar.registerWidgets();
+	buttons.registerWidgets();
 
 	addon.watchWindows(processWindow, "navigator:browser");
 }
 function shutdown(data, reason) {
-	unload();
-	for (let module of ["addon", "prefs", "toolbar", "buttons", "window", "tabgroups", "utils", "ui"])
+	logger.info("shutdown", reason);
+	if (reason == APP_SHUTDOWN)
+		return;
+
+	addon.unload();
+	for (let module of ["addon", "prefs", "toolbar", "buttons", "window", "tabgroups", "utils", "ui", "log"])
 		Cu.unload(`chrome://tabgroupsbtn/content/${module}.jsm`);
 }

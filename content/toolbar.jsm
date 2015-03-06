@@ -16,6 +16,7 @@ Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
 Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
 Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
 Cu.import("chrome://tabgroupsbtn/content/ui.jsm");
+Cu.import("chrome://tabgroupsbtn/content/log.jsm");
 
 function clearToolbarSelectedState(container) {
 	let children = container.children;
@@ -209,7 +210,10 @@ function registerWidgets() {
 		type: CustomizableUI.TYPE_TOOLBAR,
 		defaultPlacements: ["tabgroupsbtn-bar"]
 	});
-	unload(() => CustomizableUI.unregisterArea("tabgroupsbtn-bar-toolbar"));
+	unload(() => {
+		logger.info("unload: CustomizableUI.unregisterArea(tabgroupsbtn-bar-toolbar)");
+		CustomizableUI.unregisterArea("tabgroupsbtn-bar-toolbar")
+	});
 
 	let listener = {
 		onWidgetAdded: (widget, area, position) => {

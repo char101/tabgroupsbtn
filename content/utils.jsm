@@ -23,6 +23,8 @@ let EXPORTED_SYMBOLS = [
 	"selectTab",
 	"moveTabToGroup",
 	"moveTabToNewGroup",
+	//
+	"registerPrefsObserver",
 ];
 
 const Cc = Components.classes;
@@ -33,6 +35,7 @@ const FM = Cc["@mozilla.org/focus-manager;1"].getService(Ci.nsIFocusManager);
 Cu.import("resource://gre/modules/devtools/Console.jsm");
 Cu.import("chrome://tabgroupsbtn/content/addon.jsm")
 Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm")
+Cu.import("chrome://tabgroupsbtn/content/prefs.jsm")
 
 function getActiveWindow() Services.wm.getMostRecentWindow("navigator:browser");
 
@@ -134,4 +137,9 @@ function moveTabToNewGroup(win, tab) {
 	let group = GI.newGroup();
 	GI.moveTabToGroupItem(tab, group.id);
 	selectGroup(win, group.id);
+}
+
+function registerPrefsObserver(observer) {
+	prefBranch.addObserver("", observer, false);
+	unload(() => prefBranch.removeObserver("", observer));
 }

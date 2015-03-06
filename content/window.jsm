@@ -123,7 +123,7 @@ function refreshGroups(win) {
 function cleanEmptyTabs(win) {
 	let tabbrowser = win.gBrowser;
 	let emptyTabs = tabbrowser.visibleTabs.filter(tab => ! (tab.getAttribute("selected") || tab.hasAttribute("busy") || tab.hasAttribute("pending") || tab.getAttribute("pinned")) && isBlank(win, tab));
-	console.log("cleanEmptyTabs", emptyTabs);
+	// console.log("cleanEmptyTabs", emptyTabs);
 	emptyTabs.forEach(tab => tabbrowser.removeTab(tab));
 }
 
@@ -131,7 +131,7 @@ function registerEventListeners(win) {
 	let tabcontainer = win.gBrowser.tabContainer;
 
 	listen(tabcontainer, "TabSelect", e => {
-		console.log("TabSelect", [e.target]);
+		// console.log("TabSelect", [e.target]);
 		refreshGroups(win);
 
 		// first tab select happens before session restore so we need to ignore it
@@ -144,8 +144,8 @@ function registerEventListeners(win) {
 	});
 	listen(win, "tabgroupsbtn-group-renamed", e => refreshGroups(win));
 	listen(win, "tabgroupsbtn-group-closed", e => refreshGroups(win));
-	listen(win.document, "SSTabRestoring", e => console.log("SSTabRestoring", e.originalTarget));
-	listen(win.document, "SSTabRestored", e => console.log("SSTabRestored", e.originalTarget));
+	// listen(win.document, "SSTabRestoring", e => console.log("SSTabRestoring", e.originalTarget));
+	// listen(win.document, "SSTabRestored", e => console.log("SSTabRestored", e.originalTarget));
 
 	// a tab group is removed when the last tab is closed
 	// we want to prevent tabview from showing when the last tab is closed
