@@ -90,7 +90,12 @@ function getGroupImage(group) {
 }
 
 function selectGroup(win, groupid) {
-	if (getActiveGroup(win).id == groupid)
+	if (! win)
+		return;
+	let activeGroup = getActiveGroup(win);
+	if (! activeGroup)
+		return;
+	if (activeGroup.id == groupid)
 		return;
 
 	let group = getGroup(win, groupid);

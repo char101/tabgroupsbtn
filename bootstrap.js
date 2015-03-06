@@ -8,7 +8,7 @@ Cu.import("resource://gre/modules/devtools/Console.jsm");
 
 const IS_LINUX = Services.appinfo.OS == 'Linux'; // Linux, WINNT, Mac?
 
-let toolbar = {}, buttons = {}, window = {}, tabgroups = {}, firstWindow = true;
+let toolbar = {}, buttons = {}, window = {}, tabgroups = {}, prefs = {}, addon = {}, firstWindow = true;
 
 function processWindow(win) {
 	toolbar.createToolbar(win);
@@ -24,9 +24,13 @@ function processWindow(win) {
 		});
 	}
 
+	window.initState(win);
 	window.addTabContextMenu(win);
 	window.addLinkContextMenu(win);
 	window.registerEventListeners(win);
+
+	if (prefs.getPref("skip-pending"))
+		addon.patchMethod(win.gBrowser, "_blurTab", "this.selectedTab = tab;", "this.selectedTab = tab.hasAttribute('pending') ? this.addTab() : tab;");
 
 	firstWindow = false;
 }
@@ -37,22 +41,20 @@ function uninstall(data, reason) {
 		Services.prefs.getBranch("extensions.tabgroupsbtn.").deleteBranch("");
 }
 function startup(data, reason) {
-	Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
+	Cu.import("chrome://tabgroupsbtn/content/addon.jsm", addon);
+	Cu.import("chrome://tabgroupsbtn/content/prefs.jsm", prefs);
 	Cu.import("chrome://tabgroupsbtn/content/toolbar.jsm", toolbar);
 	Cu.import("chrome://tabgroupsbtn/content/buttons.jsm", buttons);
 	Cu.import("chrome://tabgroupsbtn/content/window.jsm", window);
 	Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm", tabgroups);
 
-	let ss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
-	let ssuri = Services.io.newURI("chrome://tabgroupsbtn/skin/style.css", null, null);
-	ss.loadAndRegisterSheet(ssuri, ss.AUTHOR_SHEET);
-	unload(() => ss.unregisterSheet(ssuri, ss.AUTHOR_SHEET));
-
 	firstWindow = true;
 
+	addon.addStylesheet("style.css");
 	buttons.registerWidgets();
 	toolbar.registerWidgets();
-	watchWindows(processWindow, "navigator:browser");
+
+	addon.watchWindows(processWindow, "navigator:browser");
 }
 function shutdown(data, reason) {
 	unload();

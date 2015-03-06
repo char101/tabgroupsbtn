@@ -15,6 +15,7 @@ let EXPORTED_SYMBOLS = [
 	// status
 	"isPending",
 	"isBlank",
+	"getURL",
 	// link
 	"openLinkInNewGroup",
 	"openLinkInGroup",
@@ -22,9 +23,6 @@ let EXPORTED_SYMBOLS = [
 	"selectTab",
 	"moveTabToGroup",
 	"moveTabToNewGroup",
-	// event,
-	"listen",
-	"triggerEvent",
 ];
 
 const Cc = Components.classes;
@@ -78,9 +76,14 @@ function alert(title, text) Cc["@mozilla.org/embedcomp/prompt-service;1"].getSer
 
 function isPending(tab) tab.hasAttribute("pending");
 
+function getURL(win, tab) win.gBrowser.getBrowserForTab(tab).currentURI.spec
+
 function isBlank(win, tab) {
-	let uri = win.gBrowser.getBrowserForTab(tab).currentURI.spec;
-	return uri == "about:blank" || uri == "about:newtab" || uri == "about:privatebrowsing";
+	let browser = win.gBrowser.getBrowserForTab(tab);
+	if (! browser)
+		return false;
+	let uri = browser.currentURI.spec;
+	return (uri == "about:blank" || uri == "about:newtab" || uri == "about:privatebrowsing") && browser.sessionHistory.count <= 1;
 }
 
 function clearChildren(parent) {
@@ -131,13 +134,4 @@ function moveTabToNewGroup(win, tab) {
 	let group = GI.newGroup();
 	GI.moveTabToGroupItem(tab, group.id);
 	selectGroup(win, group.id);
-}
-
-function listen(element, event, handler, capture=false) {
-	element.addEventListener(event, handler, capture);
-	unload(() => element.removeEventListener(event, handler, capture));
-}
-
-function triggerEvent(win, event) {
-	win.dispatchEvent(win.CustomEvent(event));
 }

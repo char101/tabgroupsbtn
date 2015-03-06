@@ -3,13 +3,16 @@
 let EXPORTED_SYMBOLS = [
 	"addLinkContextMenu",
 	"addTabContextMenu",
-	"registerEventListeners"
+	"registerEventListeners",
+	"sessionRestored",
+	"initState"
 ];
 
 const Cu = Components.utils;
 Cu.import("resource://gre/modules/devtools/Console.jsm");
 Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
 Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
+Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
 Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
 let buttons = Cu.import("chrome://tabgroupsbtn/content/buttons.jsm", {});
 let toolbar = Cu.import("chrome://tabgroupsbtn/content/toolbar.jsm", {});
@@ -107,22 +110,42 @@ function addTabContextMenu(win) {
 	let tabviewmenu = doc.getElementById("context_tabViewMenu");
 	if (tabviewmenu) {
 		tabviewmenu.setAttribute("style", "display:none");
-		unload(() => tabviewmenu.setAttibute("style", "display:-moz-box"));
+		unload(() => tabviewmenu.setAttribute("style", "display:-moz-box"));
 	}
+}
+
+function refreshGroups(win) {
+	let activeGroup = getActiveGroup(win);
+	buttons.refresh(win, getActiveGroup(win));
+	toolbar.refresh(win);
+}
+
+function cleanEmptyTabs(win) {
+	let tabbrowser = win.gBrowser;
+	let emptyTabs = tabbrowser.visibleTabs.filter(tab => ! (tab.getAttribute("selected") || tab.hasAttribute("busy") || tab.hasAttribute("pending") || tab.getAttribute("pinned")) && isBlank(win, tab));
+	console.log("cleanEmptyTabs", emptyTabs);
+	emptyTabs.forEach(tab => tabbrowser.removeTab(tab));
 }
 
 function registerEventListeners(win) {
 	let tabcontainer = win.gBrowser.tabContainer;
 
-	function refreshGroups(event) {
-		// console.log(event);
-		let activeGroup = getActiveGroup(win);
-		buttons.refresh(win, getActiveGroup(win));
-		toolbar.refresh(win);
-	}
-	listen(tabcontainer, "select", refreshGroups);
-	listen(win, "tabgroupsbtn-group-renamed", refreshGroups);
-	listen(win, "tabgroupsbtn-group-closed", refreshGroups);
+	listen(tabcontainer, "TabSelect", e => {
+		console.log("TabSelect", [e.target]);
+		refreshGroups(win);
+
+		// first tab select happens before session restore so we need to ignore it
+		if (! win.tabgroupsbtn.canCloseEmptyTab) {
+			win.tabgroupsbtn.canCloseEmptyTab = true;
+		} else {
+			if (getPref("clean-empty-tabs"))
+				cleanEmptyTabs(win);
+		}
+	});
+	listen(win, "tabgroupsbtn-group-renamed", e => refreshGroups(win));
+	listen(win, "tabgroupsbtn-group-closed", e => refreshGroups(win));
+	listen(win.document, "SSTabRestoring", e => console.log("SSTabRestoring", e.originalTarget));
+	listen(win.document, "SSTabRestored", e => console.log("SSTabRestored", e.originalTarget));
 
 	// a tab group is removed when the last tab is closed
 	// we want to prevent tabview from showing when the last tab is closed
@@ -142,4 +165,10 @@ function registerEventListeners(win) {
 
 	// tabcontainer.removeEventListener("TabClose", win.TabView._window.UI._eventListeners.close, false);
 	// unload(() => tabcontainer.addEventListener("TabClose", win.TabView._window.UI._eventListeners.close, false));
+}
+
+function initState(win) {
+	win.tabgroupsbtn = {
+		canCloseEmptyTab: false
+	};
 }

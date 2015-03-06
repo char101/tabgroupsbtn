@@ -4,18 +4,21 @@
 	<setting pref="extensions.tabgroupsbtn.newbtn-disabled" type="bool" title="Hide new group button"/>
 	<setting pref="extensions.tabgroupsbtn.mouseover" type="bool" title="Open menu on mouse over"/>
 	<setting pref="extensions.tabgroupsbtn.bar.button" type="bool" title="Display tabs as button in toolbar"/>
+
 	<setting pref="extensions.tabgroupsbtn.bar.position" type="menulist" title="Toolbar position">
 		<menulist>
 			<menupopup>
+				<menuitem value="top-last" label="Last row of top toolbars"/>
 				<menuitem value="before|TabsToolbar" label="Above tabs toolbar"/>
 				<menuitem value="before|nav-bar" label="Above address bar"/>
 				<menuitem value="before|PersonalToolbar" label="Above bookmarks bar"/>
-				<menuitem value="top-last" label="Last row of top toolbars"/>
 				<menuitem value="bottom-first" label="First row of bottom toolbars "/>
 				<menuitem value="bottom-last" label="Last row of bottom toolbars"/>
 			</menupopup>
 		</menulist>
 	</setting>
+	<setting pref="extensions.tabgroupsbtn.clean-empty-tabs" type="bool" title="Extra: Close unused blank tab (i.e. blank tab other than selected tab)"/>
+	<setting pref="extensions.tabgroupsbtn.skip-pending" type="bool" title="Extra: Skip unloaded (pending) tab from being selected when after closing current tab"/>
 
 	<setting title="To apply setting disable then enable the addon." type="control"/>
 </vbox>

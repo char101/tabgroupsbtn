@@ -29,6 +29,8 @@ function getPref(key, defval=null) {
 				case "mouseover": return false;
 				case "bar.button": return false;
 				case "bar.position": return "top-last";
+				case "clean-empty-tabs": return false;
+				case "skip-pending": return false;
 				default:
 					console.log("tabgroupsbtn: Unknown preference: " + key);
 					return undefined;

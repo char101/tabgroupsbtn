@@ -17,32 +17,6 @@ Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
 Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
 Cu.import("chrome://tabgroupsbtn/content/ui.jsm");
 
-function isToolbarUpdateRequired(groups, container) {
-	let items = container.children;
-
-	if (groups.length !== items.length)
-		return true;
-
-	if (! getPref("bar.button")) {
-		for (let i = 0, n = groups.length; i < n; ++i) {
-			let [id, title, active, group] = groups[i];
-			let tab = items[i];
-			if (id.toString() !== tab.value || active !== tab.selected || title !== tab.label) {
-				return true;
-			}
-		}
-	} else {
-		for (let i = 0, n = groups.length; i < n; ++i) {
-			let [id, title, active, group] = groups[i];
-			let btn = items[i];
-			if (id.toString() !== btn.value || active !== btn.checked || title !== btn.label)
-				return true;
-		}
-	}
-
-	return false;
-}
-
 function clearToolbarSelectedState(container) {
 	let children = container.children;
 	if (! getPref("bar.button")) {
@@ -95,56 +69,52 @@ function refresh(win=null) {
 	initPanorama(win).then(() => {
 		let groups = getGroupList(win, true);
 
-		if (isToolbarUpdateRequired(groups, items)) {
-			// console.log("refreshTabs");
+		if (! getPref("bar.button")) {
+			clearTabs(items);
 
-			if (! getPref("bar.button")) {
-				clearTabs(items);
+			for (let gr of groups) {
+				let [id, title, active, group] = gr;
+				let tab = createElement(doc, "tab", {
+					id: "tabgroupsbtn-bar-tab-" + id,
+					label: title,
+					selected: active,
+					value: id,
+					context: "tabgroupsbtn-bar-context",
+					tooltiptext: getTooltipText(group)
+				}, {
+					command: e => {
+						clearToolbarSelectedState(items);
+						tab.setAttribute("selected", true);
+						selectGroup(win, id);
+					}
+				});
+				items.appendChild(tab);
+			}
+		} else {
+			clearChildren(items);
 
-				for (let gr of groups) {
-					let [id, title, active, group] = gr;
-					let tab = createElement(doc, "tab", {
-						id: "tabgroupsbtn-bar-tab-" + id,
-						label: title,
-						selected: active,
-						value: id,
-						context: "tabgroupsbtn-bar-context",
-						tooltiptext: getTooltipText(group)
-					}, {
-						command: e => {
-							clearToolbarSelectedState(items);
-							tab.setAttribute("selected", true);
-							selectGroup(win, id);
-						}
-					});
-					items.appendChild(tab);
-				}
-			} else {
-				clearChildren(items);
-
-				for (let i = 0, n = groups.length; i < n; ++i) {
-					let [id, title, active, group] = groups[i];
-					let btn = createElement(doc, "toolbarbutton", {
-						type: "checkbox",
-						class: "toolbarbutton-1 chromeclass-toolbar-additional tabgroupsbtn-bar-button",
-						label: title,
-						value: id,
-						context: "tabgroupsbtn-bar-context",
-						tooltiptext: getTooltipText(group)
-					}, {
-						command: e => {
-							clearToolbarSelectedState(items);
-							btn.checked = true;
-							selectGroup(win, id);
-						}
-					});
-					items.appendChild(btn);
-					if (active)
+			for (let i = 0, n = groups.length; i < n; ++i) {
+				let [id, title, active, group] = groups[i];
+				let btn = createElement(doc, "toolbarbutton", {
+					type: "checkbox",
+					class: "toolbarbutton-1 chromeclass-toolbar-additional tabgroupsbtn-bar-button",
+					label: title,
+					value: id,
+					context: "tabgroupsbtn-bar-context",
+					tooltiptext: getTooltipText(group)
+				}, {
+					command: e => {
+						clearToolbarSelectedState(items);
 						btn.checked = true;
+						selectGroup(win, id);
+					}
+				});
+				items.appendChild(btn);
+				if (active)
+					btn.checked = true;
 
-					if (i < n - 1)
-						items.appendChild(createElement(doc, "toolbarseparator", {class: "tabgroupsbtn-bar-separator"}));
-				}
+				if (i < n - 1)
+					items.appendChild(createElement(doc, "toolbarseparator", {class: "tabgroupsbtn-bar-separator"}));
 			}
 		}
 	});
@@ -259,36 +229,21 @@ function setToolbarStyle(win, inTop) {
 		return;
 	let tabstoolbar = doc.getElementById("TabsToolbar");
 
-	console.log("setToolbarStyle", inTop);
 	if (inTop) {
-		console.log('A');
 		toolbar.classList.add("tabgroupsbtn-bar-toolbar-transparent");
-		console.log('B');
 		if (tabstoolbar) {
-			console.log('C');
 			tabstoolbar.classList.add("tabstoolbar-nomargin");
 			unload(() => el.classList.remove("tabstoolbar-nomargin"));
 		}
-		console.log('D');
 
 		// if menubar is not visible then the toolbar is in the titlebar row, add padding to accomodate window buttons
-		console.log('E');
-		console.log(win);
-		console.log('F');
-		console.log(win.windowState);
-		// if (win.windowState === 1) {
-			console.log('G');
-			let menubar = doc.getElementById("toolbar-menubar");
-			console.log(menubar.getAttribute("inactive"));
-			if (menubar.getAttribute("inactive") === "true") {
-				console.log('here');
-				let buttonbox = doc.getElementById("titlebar-buttonbox-container");
-				console.log(win.getComputedStyle(buttonbox, null).display);
-				if (win.getComputedStyle(buttonbox, null).display !== "none") {
-					toolbar.classList.add("tabgroupsbtn-bar-toolbar-windowbuttons");
-				}
+		let menubar = doc.getElementById("toolbar-menubar");
+		if (menubar.getAttribute("inactive") === "true") {
+			let buttonbox = doc.getElementById("titlebar-buttonbox-container");
+			if (win.getComputedStyle(buttonbox, null).display !== "none") {
+				toolbar.classList.add("tabgroupsbtn-bar-toolbar-windowbuttons");
 			}
-		// }
+		}
 	} else {
 		toolbar.classList.remove("tabgroupsbtn-bar-toolbar-transparent");
 		toolbar.classList.remove("tabgroupsbtn-bar-toolbar-windowbuttons");

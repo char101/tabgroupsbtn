@@ -36,6 +36,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+const Cc = Components.classes;
+const Ci = Components.interfaces;
 const Cu = Components.utils;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/devtools/Console.jsm");
@@ -44,7 +46,12 @@ let EXPORTED_SYMBOLS = [
 	"unload",
 	"runOnLoad",
 	"runOnWindows",
-	"watchWindows"
+	"watchWindows",
+	"patchMethod",
+	"addStylesheet",
+	"listen",
+	"triggerEvent",
+	"observe"
 ];
 
 /**
@@ -190,4 +197,44 @@ function watchWindows(callback, winType) {
 
 	// Make sure to stop watching for windows if we're unloading
 	unload(function() Services.ww.unregisterNotification(windowWatcher));
+}
+
+function addStylesheet(filename) {
+	let ss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+	let uri = Services.io.newURI("chrome://tabgroupsbtn/skin/" + filename, null, null);
+	ss.loadAndRegisterSheet(uri, ss.AUTHOR_SHEET);
+	unload(() => ss.unregisterSheet(uri, ss.AUTHOR_SHEET));
+}
+
+
+function listen(element, event, handler, capture=false) {
+	element.addEventListener(event, handler, capture);
+	unload(() => element.removeEventListener(event, handler, capture));
+}
+
+function triggerEvent(win, event) {
+	win.dispatchEvent(win.CustomEvent(event));
+}
+
+function observe(topic, func) {
+	let observer = {observe: func};
+	Services.obs.addObserver(observer, topic, false);
+	unload(() => Services.obs.removeObserver(observer, topic));
+}
+
+function patchMethod(obj, method, search, replace) {
+	let origCode = obj[method].toString();
+	let code = origCode.replace(search, replace);
+	if (origCode == code)
+		return;
+	code = "(" + code + ")";
+
+	if (! obj.hasOwnProperty(method))
+		Object.defineProperty(obj, method, {value: eval(code), writable: true, configurable: true});
+	else
+		obj[method] = eval(code);
+
+	// console.log(obj[method].toString());
+
+	unload(() => obj[method] = eval(origCode));
 }
