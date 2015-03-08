@@ -125,19 +125,19 @@ function cleanEmptyTabs(win) {
 	let tabbrowser = win.gBrowser;
 
 	// tabbrowser.visibleTabs sometimes include tabs from other group
-	// logger.info("cleanEmptyTabs: visibleTabs:", [for (tab of tabbrowser.visibleTabs) tab.label]);
+	// logger.info("cleanEmptyTabs: visibleTabs:", tabbrowser.visibleTabs.map(t => t.label));
 
 	let group = getActiveGroup(win);
 	if (! group) {
 		logger.warning("cleanEmptyTabs: getActiveGroup is undefined");
 		return;
 	}
-	let visibleTabs = [for (tabitem of group.getChildren()) tabitem.tab];
-	logger.info("cleanEmptyTabs: group visibleTabs:", [for (tab of visibleTabs) tab.label]);
+	let visibleTabs = group.getChildren().map(tabitem => tabitem.tab);
+	logger.info("cleanEmptyTabs: group visibleTabs:", visibleTabs.map(t => t.label));
 
 	if (visibleTabs.length > 1) {
 		let emptyTabs = visibleTabs.filter(tab => ! (tab.getAttribute("selected") || tab.hasAttribute("busy") || tab.hasAttribute("pending") || tab.getAttribute("pinned")) && isBlank(win, tab));
-		logger.info("cleanEmptyTabs", [for (tab of emptyTabs) tab.label]);
+		logger.info("cleanEmptyTabs", emptyTabs.map(t => t.label));
 		emptyTabs.forEach(tab => tabbrowser.removeTab(tab));
 	}
 }

@@ -20,24 +20,6 @@ const Cu = Components.utils;
 Cu.import("resource://gre/modules/devtools/Console.jsm");
 Cu.import("chrome://tabgroupsbtn/content/utils.jsm")
 
-function getGroupList(win, shortnames=false) {
-	let GI = getGroupItems(win);
-	let groups = [];
-	let activegroup = GI.getActiveGroupItem();
-	for (let gi of GI.groupItems)
-		groups.push([gi.id, getGroupTitle(gi, shortnames), gi == activegroup, gi]);
-	// sort by has title first then by title
-	groups.sort((a, b) => {
-		let at = a[3].getTitle();
-		let bt = b[3].getTitle();
-		let r = (at === "") - (bt === "");
-		if (r === 0)
-			r = (at === "") ? (a[3].id - b[3].id) : (at.toLowerCase().localeCompare(bt.toLowerCase()));
-		return r;
-	});
-	return groups;
-}
-
 function initPanorama(win=null) {
 	if (win === null)
 		win = getActiveWindow();
@@ -69,7 +51,27 @@ function getGroupItems(win) {
 	return cw.GroupItems;
 }
 
+function getGroupList(win, shortnames=false) {
+	let GI = getGroupItems(win);
+	let groups = [];
+	let activegroup = GI.getActiveGroupItem();
+	for (let gi of GI.groupItems)
+		groups.push([gi.id, getGroupTitle(gi, shortnames), gi == activegroup, gi]);
+	// sort by has title first then by title
+	groups.sort((a, b) => {
+		let at = a[3].getTitle();
+		let bt = b[3].getTitle();
+		let r = (at === "") - (bt === "");
+		if (r === 0)
+			r = (at === "") ? (a[3].id - b[3].id) : (at.toLowerCase().localeCompare(bt.toLowerCase()));
+		return r;
+	});
+	return groups;
+}
+
 function getGroup(win, groupid) getGroupItems(win).groupItem(groupid);
+
+function getGroupCount(win) getGroupItems(win).groupItems.length;
 
 function getActiveGroup(win=null) {
 	win = win || getActiveWindow();
@@ -152,7 +154,9 @@ function closeGroup(win=null, groupid=null, doConfirm=false) {
 	if (tabgroups.length == 1)
 		return;
 
-	let group = getGroup(win, groupid);
+	let group = getGroup(win, groupid)
+
+	function getGroupCount(win) getGroupItems(win).leng;
 	let ntabs = group.getChildren().length;
 	let s = ntabs > 1 ? 's' : '';
 	if (doConfirm && ! confirm("Confirm Close Tab Group", `You are about to close tab group ${getGroupTitle(group)} (${ntabs} tab${s}). Are you sure you want to continue?`))

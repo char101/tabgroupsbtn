@@ -56,13 +56,15 @@ function showGroupContextMenu(popup, groupid=null) {
 		command: e => renameGroup(null, groupid)
 	}));
 
-	let mergePopup = createElement(doc, "menupopup", null, {popupshowing: e => {
-		e.stopPropagation();
-		showMergeMenu(e.target, groupid);
-	}});
-	popup.appendChild(createElement(doc, "menu", {label: "Merge Group"}, null, mergePopup));
+	if (getGroupCount() > 1) {
+		let mergePopup = createElement(doc, "menupopup", null, {popupshowing: e => {
+			e.stopPropagation();
+			showMergeMenu(e.target, groupid);
+		}});
+		popup.appendChild(createElement(doc, "menu", {label: "Merge Group"}, null, mergePopup));
 
-	popup.appendChild(createElement(doc, "menuitem", {label: "Close Group"}, {
-		command: e => closeGroup(null, groupid, true)
-	}));
+		popup.appendChild(createElement(doc, "menuitem", {label: "Close Group"}, {
+			command: e => closeGroup(null, groupid, true)
+		}));
+	}
 }
