@@ -33,30 +33,33 @@ const Cu = Components.utils;
 Cu.import("resource://gre/modules/Services.jsm");
 const FM = Cc["@mozilla.org/focus-manager;1"].getService(Ci.nsIFocusManager);
 Cu.import("resource://gre/modules/devtools/Console.jsm");
-Cu.import("chrome://tabgroupsbtn/content/addon.jsm")
-Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm")
-Cu.import("chrome://tabgroupsbtn/content/prefs.jsm")
+Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
+Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
+Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
 
-function getActiveWindow() Services.wm.getMostRecentWindow("navigator:browser");
+function getActiveWindow() Services.wm.getMostRecentWindow("navigator:browser")
 
 function createElement(doc, tag, attributes, eventhandlers, ...children) {
 	let el = doc.createElement(tag);
-	if (attributes)
+	if (attributes) {
 		for (let key in attributes) {
 			let val = attributes[key];
 			if (val !== undefined && val !== null)
 				el.setAttribute(key, val);
 		}
-	if (eventhandlers)
+	}
+	if (eventhandlers) {
 		for (let event in eventhandlers) {
 			let handler = eventhandlers[event];
 			if (typeof handler === "function")
 				el.addEventListener(event, handler);
 		}
-	if (children)
+	}
+	if (children) {
 		for (let child of children)
 			if (typeof child === "object")
 				el.appendChild(child);
+	}
 	return el;
 }
 
@@ -73,11 +76,11 @@ function prompt(title, text, value) {
 		return input.value; // "" if blank
 }
 
-function confirm(title, text) Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService).confirm(getActiveWindow(), title, text);
+function confirm(title, text) Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService).confirm(getActiveWindow(), title, text)
 
-function alert(title, text) Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService).alert(getActiveWindow(), title, text);
+function alert(title, text) Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService).alert(getActiveWindow(), title, text)
 
-function isPending(tab) tab.hasAttribute("pending");
+function isPending(tab) tab.hasAttribute("pending")
 
 function getURL(win, tab) win.gBrowser.getBrowserForTab(tab).currentURI.spec
 

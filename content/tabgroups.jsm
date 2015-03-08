@@ -1,15 +1,17 @@
 "use strict";
 
 let EXPORTED_SYMBOLS = [
-	"getGroupList",
 	"initPanorama",
 	"getGroupItems",
+	"getGroupList",
 	"getGroup",
+	"getGroupCount",
 	"getActiveGroup",
 	"getGroupTitle",
 	"getGroupImage",
 	"selectGroup",
 	"createGroup",
+	"promptCreateGroup",
 	"createSubGroup",
 	"closeGroup",
 	"renameGroup",
@@ -18,7 +20,9 @@ let EXPORTED_SYMBOLS = [
 
 const Cu = Components.utils;
 Cu.import("resource://gre/modules/devtools/Console.jsm");
-Cu.import("chrome://tabgroupsbtn/content/utils.jsm")
+Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
+Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
+Cu.import("chrome://tabgroupsbtn/content/log.jsm");
 
 function initPanorama(win=null) {
 	if (win === null)
@@ -69,9 +73,9 @@ function getGroupList(win, shortnames=false) {
 	return groups;
 }
 
-function getGroup(win, groupid) getGroupItems(win).groupItem(groupid);
+function getGroup(win, groupid) getGroupItems(win).groupItem(groupid)
 
-function getGroupCount(win) getGroupItems(win).groupItems.length;
+function getGroupCount(win) getGroupItems(win).groupItems.length
 
 function getActiveGroup(win=null) {
 	win = win || getActiveWindow();
@@ -82,7 +86,7 @@ function getActiveGroup(win=null) {
 		return gi.getActiveGroupItem();
 }
 
-function getGroupTitle(group, shortnames=false) group.getTitle() || (shortnames ? `Group ${group.id}` : `Group ${group.id}`);
+function getGroupTitle(group, shortnames=false) group.getTitle() || (shortnames ? `Group ${group.id}` : `Group ${group.id}`)
 
 function getGroupImage(group) {
 	let ti = group.getActiveTab() || group.getChildren()[0];
@@ -103,7 +107,7 @@ function selectGroup(win, groupid) {
 	let group = getGroup(win, groupid);
 	let browser = win.gBrowser;
 
-	if (group.getChildren().length == 0) {
+	if (group.getChildren().length === 0) {
 		group.newTab();
 	} else {
 		let tab = (group.getActiveTab() || group.getChild(0)).tab;
@@ -131,6 +135,13 @@ function createGroup(title=null, win=null) {
 	win.document.getElementById("urlbar").focus();
 }
 
+function promptCreateGroup(win=null) {
+	win = win || getActiveWindow();
+	let title = prompt("Create New Group", "Enter Group Title:\n(press OK to create unnamed group)");
+	if (title !== undefined) // empty string = create unnamed group
+		createGroup(title, win);
+}
+
 function createSubGroup(win=null) {
 	win = win || getActiveWindow();
 	let title = getActiveGroup(win).getTitle();
@@ -144,38 +155,47 @@ function createSubGroup(win=null) {
 }
 
 function closeGroup(win=null, groupid=null, doConfirm=false) {
+	logger.info("closeGroup", groupid);
+
 	win = win || getActiveWindow();
 
 	let activeGroup = getActiveGroup(win);
 	groupid = groupid || activeGroup.id;
+	logger.info("activeGroup", activeGroup.id);
 
 	let GI = getGroupItems(win);
 	let tabgroups = GI.groupItems;
 	if (tabgroups.length == 1)
 		return;
 
-	let group = getGroup(win, groupid)
+	let group = getGroup(win, groupid);
 
-	function getGroupCount(win) getGroupItems(win).leng;
 	let ntabs = group.getChildren().length;
 	let s = ntabs > 1 ? 's' : '';
 	if (doConfirm && ! confirm("Confirm Close Tab Group", `You are about to close tab group ${getGroupTitle(group)} (${ntabs} tab${s}). Are you sure you want to continue?`))
 		return false;
 
-	if (groupid === activeGroup.id) {
+	if (groupid == activeGroup.id) {
+		logger.info("Closing active group");
 		// activate another group to prevent tabview from showing
 		let focusgroup = null;
-		for (let i = 0; i < (tabgroups.length - 1); ++i)
+		let ngroup = tabgroups.length;
+		for (let i = 0; i < (ngroup - 1); ++i)
 			if (tabgroups[i].id == groupid) {
 				focusgroup = tabgroups[i + 1];
+				logger.info("Select next group", focusgroup.id);
 				break;
 			}
-		if (focusgroup === null)
-			focusgroup = tabgroups[tabgroups.length - 2];
-		selectGroup(win, focusgroup.id);
+		if (focusgroup === null) {
+			// no tab groups on the right, i.e. this is the rightmost group
+			focusgroup = tabgroups[ngroup - 2];
+			logger.info("Select previous group", focusgroup.id);
+		}
+		if (focusgroup)
+			selectGroup(win, focusgroup.id);
 	}
 
-	getGroup(win, groupid).destroy({immediately: true});
+	group.destroy({immediately: true});
 	triggerEvent(win, "tabgroupsbtn-group-closed");
 	return true;
 }
@@ -194,7 +214,6 @@ function renameGroup(win=null, groupid=null) {
 function mergeGroup(win, src, dst) {
 	let GI = getGroupItems(win);
 	let srcGroup = getGroup(win, src);
-	let dstGroup = getGroup(win, dst);
 
 	let srcTabItems = srcGroup.getChildren();
 	for (let i = srcTabItems.length - 1; i > 0; --i) {

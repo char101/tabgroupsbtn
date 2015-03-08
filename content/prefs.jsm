@@ -27,6 +27,7 @@ function getPref(key, defval=null) {
 				case "mouseover": return false;
 				case "bar.button": return false;
 				case "bar.position": return "top-last";
+				case "bar.collapsed": return false;
 				case "clean-empty-tabs": return false;
 				case "skip-pending": return false;
 				case "log-level": return 60;

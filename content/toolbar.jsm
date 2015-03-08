@@ -39,10 +39,14 @@ function createContextMenu(win) {
 	let doc = win.document;
 	let popupset = doc.getElementById("mainPopupSet");
 
-	let context = createElement(doc, "menupopup", {id: "tabgroupsbtn-bar-context"}, {popupshowing: e => showGroupContextMenu(e.target, e.target.triggerNode.getAttribute("value"))});
+	let context = createElement(doc, "menupopup", {id: "tabgroupsbtn-bar-context"}, {popupshowing: event => showGroupContextMenu(event.target, event.target.triggerNode.getAttribute("value"))});
 	popupset.appendChild(context);
-
 	unload(() => popupset.removeChild(context));
+
+	let toolbarContext = createElement(doc, "menupopup", {id: "tabgroupsbtn-bar-toolbar-context"});
+	toolbarContext.appendChild(createElement(doc, "menuitem", {label: "New Group"}, {command: event => promptCreateGroup(win)}));
+	popupset.appendChild(toolbarContext);
+	unload(() => popupset.removeChild(toolbarContext));
 }
 
 function getTooltipText(group) {
@@ -212,7 +216,7 @@ function registerWidgets() {
 	});
 	unload(() => {
 		logger.info("unload: CustomizableUI.unregisterArea(tabgroupsbtn-bar-toolbar)");
-		CustomizableUI.unregisterArea("tabgroupsbtn-bar-toolbar")
+		CustomizableUI.unregisterArea("tabgroupsbtn-bar-toolbar");
 	});
 
 	let listener = {
@@ -310,6 +314,28 @@ function positionToolbar(win, toolbar=null) {
 		doc.getElementById("navigator-toolbox").insertBefore(toolbar, doc.getElementById("TabsToolbar"));
 }
 
+function observeToolbarChange(win, id) {
+	logger.info("observeToolbarChange");
+	let doc = win.document;
+	let el = doc.getElementById(id);
+	if (el) {
+		let observer = new win.MutationObserver(mutations => {
+			if (! mutations.length)
+				return;
+			logger.info("mutation observed at", element);
+			let toolbar = doc.getElementById("tabgroupsbtn-bar");
+			if (toolbar) {
+				setPref("bar.collapsed", toolbar.collapsed);
+				logger.info("observeToolbarChange: toolbar.collapsed =", toolbar.collapsed);
+			}
+		});
+		observer.observe(el, {childList: true});
+		unload(() => observer.disconnect());
+	} else {
+		logger.info("observeToolbarChange:", id, "not found");
+	}
+}
+
 function createToolbar(win) {
 	let doc = win.document;
 	let toolbar = createElement(doc, "toolbar", {
@@ -320,8 +346,24 @@ function createToolbar(win) {
 		hidden: false,
 		mode: "full", // icons/text/null
 		iconsize: "small",
-		customizable: true
+		customizable: true,
+		context: "tabgroupsbtn-bar-toolbar-context"
 	});
+	toolbar.collapsed = getPref("bar.collapsed");
+
+	let observer = new win.MutationObserver(mutations => {
+		if (! mutations.length)
+			return;
+		for (let m of mutations) {
+			if (m.attributeName == "collapsed") {
+				setPref("bar.collapsed", toolbar.collapsed);
+				logger.info("observeToolbarChange: toolbar.collapsed =", toolbar.collapsed);
+				break;
+			}
+		}
+	});
+	observer.observe(toolbar, {attributes: true});
+	unload(() => observer.disconnect());
 
 	positionToolbar(win, toolbar);
 
@@ -340,5 +382,5 @@ let prefObserver = {
 				break;
 		}
 	}
-}
+};
 registerPrefsObserver(prefObserver);

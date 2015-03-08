@@ -63,7 +63,7 @@ function addLinkContextMenu(win) {
 
 	unload(() => {
 		context.removeEventListener("popupshowing", onpopupshowing, false);
-		context.removeChild(mi)
+		context.removeChild(mi);
 	});
 }
 
@@ -116,7 +116,6 @@ function addTabContextMenu(win) {
 }
 
 function refreshGroups(win) {
-	let activeGroup = getActiveGroup(win);
 	buttons.refresh(win, getActiveGroup(win));
 	toolbar.refresh(win);
 }

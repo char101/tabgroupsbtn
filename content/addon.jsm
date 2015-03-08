@@ -44,7 +44,7 @@ function unload(callback, container) {
 			container.removeEventListener("unload", unloader, false);
 			removeUnloader();
 			origCallback();
-		}
+		};
 	}
 
 	// Wrap the callback in a function that ignores failures

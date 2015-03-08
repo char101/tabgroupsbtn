@@ -26,7 +26,7 @@ function isInsideToolbar(win) {
 				break;
 			if (parent.tagName === "toolbar") {
 				if (parent.id == "tabgroupsbtn-bar-toolbar")
-					return true
+					return true;
 				break;
 			}
 			element = parent;
@@ -51,7 +51,7 @@ function showGroups(menu) {
 	let win = getActiveWindow();
 	let doc = win.document;
 
-	clearPopup(menu)
+	clearPopup(menu);
 
 	let hasNamedGroup = false;
 	let separatoradded = false;
@@ -177,13 +177,9 @@ function registerWidgets() {
 						class: "toolbarbutton-1",
 						image: "chrome://tabgroupsbtn/skin/new.png"
 					}, {
-						command: event => {
-							let title = prompt("Create New Group", "Enter Group Title:\n(press OK to create unnamed group)");
-							if (title !== undefined) // empty string = create unnamed group
-								initPanorama().then(() => createGroup(title));
-						},
+						command: event => initPanorama().then(() => promptCreateGroup()),
 						click: event => {
-							if (event.button == 1) {
+							if (event.button == 1) { // middle click
 								event.preventDefault();
 								event.stopPropagation();
 								initPanorama().then(createGroup);

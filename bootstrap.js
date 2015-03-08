@@ -60,6 +60,7 @@ function startup(data, reason) {
 }
 function shutdown(data, reason) {
 	logger.info("shutdown", reason);
+
 	if (reason == APP_SHUTDOWN)
 		return;
 

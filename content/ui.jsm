@@ -56,7 +56,7 @@ function showGroupContextMenu(popup, groupid=null) {
 		command: e => renameGroup(null, groupid)
 	}));
 
-	if (getGroupCount() > 1) {
+	if (getGroupCount(win) > 1) {
 		let mergePopup = createElement(doc, "menupopup", null, {popupshowing: e => {
 			e.stopPropagation();
 			showMergeMenu(e.target, groupid);
