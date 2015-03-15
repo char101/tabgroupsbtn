@@ -1,7 +1,7 @@
 "use strict";
 
 let EXPORTED_SYMBOLS = [
-	"logger"
+    "logger"
 ];
 
 const Cu = Components.utils;
@@ -14,9 +14,9 @@ let logger = Log.repository.getLogger("tabgroupsbtn");
 logger.level = getPref("log-level");
 let formatter = new Log.BasicFormatter();
 if (getPref("log-to-file")) {
-	let logfile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-	logfile.append("tabgroupsbtn.log");
-	logger.addAppender(new Log.FileAppender(logfile.path, formatter));
+    let logfile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    logfile.append("tabgroupsbtn.log");
+    logger.addAppender(new Log.FileAppender(logfile.path, formatter));
 } else {
-	logger.addAppender(new Log.ConsoleAppender(formatter));
+    logger.addAppender(new Log.ConsoleAppender(formatter));
 }
