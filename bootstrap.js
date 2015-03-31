@@ -27,12 +27,12 @@ function processWindow(win) {
 
   if (prefs.getPref("skip-pending"))
     addon.patchMethod(win.gBrowser, "_blurTab", [
-      ["!aTab.owner.closing &&", "!aTab.owner.closing &&\n" +
-                                 "!aTab.owner.hasAttribute('pending') &&"],
+      ["!aTab.owner.closing &&", "!aTab.owner.closing && !aTab.owner.hasAttribute('pending') &&"],
       ["if (!tab) {", "if (!tab || tab.hasAttribute('pending')) {"],
-      ["this.selectedTab = tab;", "if (tab.hasAttribute('pending')) {\n" +
+      ["this.selectedTab = tab;", "if (!tab || tab.hasAttribute('pending')) {\n" +
                                   "  tab = this.addTab();\n" +
-                                  "  this.moveTabTo(tab, aTab.tabIndex + 1);\n" +
+                                  "  if (this.tabContainer.getIndexOfItem(aTab) < (this.tabs.length - 1))\n" +
+                                  "    this.moveTabTo(tab, this.tabContainer.getIndexOfItem(aTab) + 1);\n" +
                                   "}\n" +
                                   "this.selectedTab = tab;"]
     ]);

@@ -11,6 +11,7 @@ let EXPORTED_SYMBOLS = [
   "runOnWindows",
   "watchWindows",
   "patchMethod",
+  "replaceMethod",
   "addStylesheet",
   "listen",
   "triggerEvent",
@@ -147,7 +148,7 @@ function listen(element, event, handler, capture=false) {
 }
 
 function triggerEvent(win, event) {
-  win.dispatchEvent(win.CustomEvent(event));
+  win.dispatchEvent(new win.CustomEvent(event));
 }
 
 function observe(topic, func) {
@@ -167,6 +168,25 @@ function patchMethod(obj, method, search, replace) {
   if (origCode == code)
     return;
   logger.info("Patching method " + method + " of " + obj);
+  logger.info(code);
+  code = "(" + code + ")";
+
+  if (! obj.hasOwnProperty(method)) {
+    Object.defineProperty(obj, method, {value: eval(code), writable: true, configurable: true});
+    unload(() => {
+      delete obj[method];
+    });
+  } else {
+    obj[method] = eval(code);
+    unload(() => obj[method] = eval(origCode));
+  }
+}
+
+function replaceMethod(obj, method, code) {
+  let origCode = obj[method].toString();
+
+  logger.info("Replacing method " + method + " of " + obj);
+  logger.info(origCode);
   logger.info(code);
   code = "(" + code + ")";
 

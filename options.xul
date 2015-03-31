@@ -18,7 +18,7 @@
 		</menulist>
 	</setting>
 	<setting pref="extensions.tabgroupsbtn.clean-empty-tabs" type="bool" title="(Extra) Close unused blank tab"/>
-	<setting pref="extensions.tabgroupsbtn.skip-pending" type="bool" title="(Extra) Prevent unloaded tab from being selected after closing current tab"/>
+	<setting pref="extensions.tabgroupsbtn.skip-pending" type="bool" title="(Extra) Prevent unloaded tab from being selected after closing current tab (incompatible with BarTab Heavy)"/>
 
 	<setting pref="extensions.tabgroupsbtn.log-level" type="menulist" title="(Debugging) Log level">
 		<menulist>

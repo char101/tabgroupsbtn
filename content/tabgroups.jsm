@@ -109,6 +109,7 @@ function selectGroup(win, groupid) {
 
   if (group.getChildren().length === 0) {
     group.newTab();
+    win.document.getElementById("urlbar").focus();
   } else {
     let tab = (group.getActiveTab() || group.getChild(0)).tab;
     if (! isPending(tab)) {
@@ -123,6 +124,7 @@ function selectGroup(win, groupid) {
     }
 
     group.newTab();
+    win.document.getElementById("urlbar").focus();
   }
 }
 
