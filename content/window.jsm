@@ -120,6 +120,19 @@ function refreshGroups(win) {
   toolbar.refresh(win);
 }
 
+function isClosable(win, tab) {
+    if (!(tab.getAttribute("selected") || tab.hasAttribute("busy") || tab.hasAttribute("pending") || tab.getAttribute("pinned")) && isBlank(win, tab)) {
+      let br = tab.linkedBrowser;
+      if (br) {
+        let urltext = br._userTypedValue;
+        if (! urltext || urltext === "about:blank" || urltext === "about:newtab" || urltext === "about:privatebrowsing")
+          return true;
+      } else
+        return true;
+    }
+    return false;
+}
+
 function cleanEmptyTabs(win) {
   let tabbrowser = win.gBrowser;
 
@@ -135,7 +148,7 @@ function cleanEmptyTabs(win) {
   logger.info("cleanEmptyTabs: group visibleTabs:", visibleTabs.map(t => t.label));
 
   if (visibleTabs.length > 1) {
-    let emptyTabs = visibleTabs.filter(tab => ! (tab.getAttribute("selected") || tab.hasAttribute("busy") || tab.hasAttribute("pending") || tab.getAttribute("pinned")) && isBlank(win, tab));
+    let emptyTabs = visibleTabs.filter(tab => isClosable(win, tab));
     logger.info("cleanEmptyTabs", emptyTabs.map(t => t.label));
     emptyTabs.forEach(tab => tabbrowser.removeTab(tab));
   }
@@ -186,3 +199,5 @@ function initState(win) {
     canCloseEmptyTab: false
   };
 }
+
+// vim:set sw=2 ts=2 et:
