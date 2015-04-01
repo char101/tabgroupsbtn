@@ -231,7 +231,7 @@ function registerWidgets() {
   let listener = {
     onWidgetAdded: (widget, area, position) => {
       let win = getActiveWindow();
-      if (win && win.tabgroupsbtn.panoramaLoaded)
+      if (win && win.tabgroupsbtn && win.tabgroupsbtn.panoramaLoaded)
         refresh(win);
     },
   };

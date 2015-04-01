@@ -51,8 +51,6 @@ function startup(data, reason) {
   Cu.import("chrome://tabgroupsbtn/content/window.jsm", window);
   Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm", tabgroups);
 
-  // firstWindow = true;
-
   addon.addStylesheet("style.css");
   toolbar.registerWidgets();
   buttons.registerWidgets();
