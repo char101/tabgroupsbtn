@@ -1,6 +1,6 @@
 "use strict";
 
-let EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "refresh",
   "manualRefresh",
   "createToolbar",
@@ -126,21 +126,6 @@ function refresh(win=null) {
   });
 }
 
-function onToolbarMouseOver(event) {
-  logger.info("onToolbarMouseOver");
-
-  let win = getActiveWindow();
-  let doc = win.document;
-  let toolbar = event.target;
-
-  toolbar.removeEventListener("mouseover", onToolbarMouseOver, false);
-  let btn = doc.getElementById("tabgroupsbtn-bar-manual-button");
-  if (btn)
-    btn.remove()
-
-  triggerEvent(win, "tabgroupsbtn-load-panorama");
-}
-
 function registerWidgets() {
   CustomizableUI.createWidget({
     id: "tabgroupsbtn-bar",
@@ -161,7 +146,7 @@ function registerWidgets() {
       });
       btn.addEventListener("command", e => {
         ti.removeChild(btn);
-        refresh(win);
+        refresh();
       }, false);
       ti.insertBefore(btn, ti.firstChild);
 
@@ -359,9 +344,6 @@ function createToolbar(win) {
     context: "tabgroupsbtn-bar-toolbar-context"
   });
   toolbar.collapsed = getPref("bar.collapsed");
-
-  // load panorama on mouse over
-  toolbar.addEventListener("mouseover", onToolbarMouseOver, false);
 
   let observer = new win.MutationObserver(mutations => {
     if (! mutations.length)

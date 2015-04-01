@@ -1,11 +1,9 @@
 "use strict";
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+const {utils: Cu, classes: Cc, interfaces: Ci} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 
-let toolbar = {}, buttons = {}, window = {}, tabgroups = {}, prefs = {}, addon = {};
+const toolbar = {}, buttons = {}, window = {}, tabgroups = {}, prefs = {}, addon = {};
 
 function processWindow(win) {
   logger.debug("processWindow");
@@ -16,8 +14,6 @@ function processWindow(win) {
   buttons.createContextMenu(win);
   toolbar.createContextMenu(win);
 
-  window.addTabContextMenu(win);
-  window.addLinkContextMenu(win);
   window.registerEventListeners(win);
 
   if (prefs.getPref("skip-pending"))
@@ -65,6 +61,6 @@ function shutdown(data, reason) {
     return;
 
   addon.unload();
-  for (let module of ["addon", "prefs", "toolbar", "buttons", "window", "tabgroups", "utils", "ui", "log"])
+  for (let module of ["addon", "prefs", "toolbar", "buttons", "window", "tabgroups", "utils", "ui", "log", "stash", "relativetime"])
     Cu.unload(`chrome://tabgroupsbtn/content/${module}.jsm`);
 }

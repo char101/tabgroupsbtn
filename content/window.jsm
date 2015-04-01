@@ -1,6 +1,6 @@
 "use strict";
 
-let EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "addLinkContextMenu",
   "addTabContextMenu",
   "registerEventListeners",
@@ -15,8 +15,9 @@ Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
 Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
 Cu.import("chrome://tabgroupsbtn/content/log.jsm");
 Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
-let buttons = Cu.import("chrome://tabgroupsbtn/content/buttons.jsm", {});
-let toolbar = Cu.import("chrome://tabgroupsbtn/content/toolbar.jsm", {});
+const Buttons = Cu.import("chrome://tabgroupsbtn/content/buttons.jsm", {});
+const Toolbar = Cu.import("chrome://tabgroupsbtn/content/toolbar.jsm", {});
+const Stash = Cu.import("chrome://tabgroupsbtn/content/stash.jsm", {});
 
 function showLinkContextMenu(win, popup) {
   let doc = win.document;
@@ -96,16 +97,36 @@ function showTabContextMenu(win, popup) {
 
 function addTabContextMenu(win) {
   let doc = win.document;
-
-  let popup = createElement(doc, "menupopup", null, {popupshowing: e => showTabContextMenu(win, e.target)});
-
-  let menu = createElement(doc, "menu", {label: "Move to Group"});
-  menu.appendChild(popup);
-
-  // Add menu to tab context menu
   let tabcontextmenu = doc.getElementById("tabContextMenu");
-  tabcontextmenu.insertBefore(menu, doc.getElementById("context_openTabInWindow").nextSibling);
-  unload(() => tabcontextmenu.removeChild(menu));
+
+  listen(tabcontextmenu, "popupshowing", e => {
+    if (e.target == tabcontextmenu) {
+      let tab = e.target.triggerNode;
+      logger.debug("tabContextMenu onpopupshowing", [isBlank(win, tab), tab]);
+      doc.getElementById("tabgroupsbtn-menuitem-stash").disabled = isBlank(win, tab);
+    }
+  });
+
+  // Add move to group menu item
+  {
+    let menu = createElement(doc, "menu", {id: "tabgroupsbtn-menu-movetogroup", label: "Move to Group"});
+    let popup = createElement(doc, "menupopup", null, {popupshowing: e => showTabContextMenu(win, e.target)});
+    menu.appendChild(popup);
+    tabcontextmenu.insertBefore(menu, doc.getElementById("context_openTabInWindow").nextSibling);
+    unload(() => tabcontextmenu.removeChild(menu));
+  }
+
+  // Add stash menu item
+  {
+    let item = createElement(doc, "menuitem", {
+      id: "tabgroupsbtn-menuitem-stash",
+      label: "Stash"
+    }, {
+      command: e => Stash.put(win, e.target.parentNode.triggerNode)
+    });
+    tabcontextmenu.insertBefore(item, doc.getElementById("tabgroupsbtn-menu-movetogroup").nextSibling);
+    unload(() => tabcontextmenu.removeChild(item))
+  }
 
   // Disable builtin move to group menu item
   let tabviewmenu = doc.getElementById("context_tabViewMenu");
@@ -117,8 +138,8 @@ function addTabContextMenu(win) {
 
 function refreshGroups(win) {
   logger.debug("window:refreshGroups");
-  buttons.refresh(win);
-  toolbar.refresh(win);
+  Buttons.refresh(win);
+  Toolbar.refresh(win);
 }
 
 function isClosable(win, tab) {
@@ -155,11 +176,8 @@ function cleanEmptyTabs(win) {
   }
 }
 
-function registerEventListeners(win) {
-  let tabcontainer = win.gBrowser.tabContainer;
-
-  listen(tabcontainer, "TabSelect", e => {
-    logger.debug("window:registerEventListeners: TabSelect: " + e.target);
+function onTabSelect(win, event) {
+    logger.debug("window:registerEventListeners: TabSelect: " + event.target.label, [event.type, win.tabgroupsbtn.canCloseEmptyTab]);
 
     if (! win.tabgroupsbtn.panoramaLoaded)
       return;
@@ -173,7 +191,14 @@ function registerEventListeners(win) {
       if (getPref("clean-empty-tabs"))
         cleanEmptyTabs(win);
     }
-  });
+}
+
+function registerEventListeners(win) {
+  let tabcontainer = win.gBrowser.tabContainer;
+
+  listen(tabcontainer, "TabSelect", e => onTabSelect(win, e));
+  // custom event when opening tab via loadOneTab which does not trigger TabSelect
+  listen(win, "tabgroupsbtn-tabselect", e => onTabSelect(win, e));
   listen(win, "tabgroupsbtn-load-panorama", e => refreshGroups(win));
   listen(win, "tabgroupsbtn-group-renamed", e => refreshGroups(win));
   listen(win, "tabgroupsbtn-group-closed", e => refreshGroups(win));

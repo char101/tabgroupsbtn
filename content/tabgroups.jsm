@@ -1,6 +1,6 @@
 "use strict";
 
-let EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "initPanorama",
   "getGroupItems",
   "getGroupList",
@@ -23,9 +23,11 @@ Cu.import("resource://gre/modules/devtools/Console.jsm");
 Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
 Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
 Cu.import("chrome://tabgroupsbtn/content/log.jsm");
+const Window = Cu.import("chrome://tabgroupsbtn/content/window.jsm", {});
+const Stash = Cu.import("chrome://tabgroupsbtn/content/stash.jsm", {});
 
 function initPanorama(win=null) {
-  logger.trace("initPanorama");
+  // logger.trace("initPanorama");
   if (win === null)
     win = getActiveWindow();
   if (! win)
@@ -33,7 +35,12 @@ function initPanorama(win=null) {
   return new Promise((next, err) => win.TabView._initFrame(() => {
     let gi = getGroupItems(win);
     if (gi) {
-      win.tabgroupsbtn.panoramaLoaded = true;
+      if (!win.tabgroupsbtn.panoramaLoaded) {
+        win.tabgroupsbtn.panoramaLoaded = true;
+        Stash.load(win);
+        Window.addTabContextMenu(win);
+        Window.addLinkContextMenu(win);
+      }
       next();
     } else {
       logger.warning("initPanorama failed");

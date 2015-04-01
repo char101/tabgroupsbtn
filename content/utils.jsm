@@ -1,6 +1,6 @@
 "use strict";
 
-let EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "getActiveWindow",
   // dom
   "createElement",
@@ -27,9 +27,7 @@ let EXPORTED_SYMBOLS = [
   "registerPrefsObserver",
 ];
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const Cu = Components.utils;
+const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 const FM = Cc["@mozilla.org/focus-manager;1"].getService(Ci.nsIFocusManager);
 Cu.import("resource://gre/modules/devtools/Console.jsm");
