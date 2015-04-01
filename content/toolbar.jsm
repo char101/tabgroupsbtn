@@ -65,6 +65,7 @@ function getTooltipText(group) {
 }
 
 function refresh(win=null) {
+  //logger.debug("toolbar:refresh");
   if (win === null)
     win = getActiveWindow();
   let doc = win.document;
@@ -136,10 +137,12 @@ function onToolbarMouseOver(event) {
   let btn = doc.getElementById("tabgroupsbtn-bar-manual-button");
   if (btn)
     btn.remove()
-  refresh(win);
+
+  triggerEvent(win, "tabgroupsbtn-load-panorama");
 }
 
 function manualRefresh(win) {
+  logger.debug("toolbar:manualRefresh");
   if (win === null)
     win = getActiveWindow();
   let doc = win.document;
@@ -403,3 +406,5 @@ let prefObserver = {
   }
 };
 registerPrefsObserver(prefObserver);
+
+// vim:set ts=2 sw=2 et:

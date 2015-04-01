@@ -31,10 +31,12 @@ function initPanorama(win=null) {
     return;
   return new Promise((next, err) => win.TabView._initFrame(() => {
     let gi = getGroupItems(win);
-    if (gi)
+    if (gi) {
+      win.tabgroupsbtn.panoramaLoaded = true;
       next();
-    else
+    } else {
       err();
+    }
   }));
 }
 
@@ -227,3 +229,5 @@ function mergeGroup(win, src, dst) {
   selectGroup(win, dst);
   closeGroup(win, src);
 }
+
+// vim:set sw=2 ts=2 et:

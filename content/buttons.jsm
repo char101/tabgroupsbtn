@@ -39,12 +39,15 @@ function refresh(win=null, group=null) {
   win = win || getActiveWindow();
   if (! win)
     return;
-  group = group || getActiveGroup(win);
-  if (! group)
-    return;
-  let widget = win.document.getElementById("tabgroupsbtn-btn-menu");
-  if (widget)
-    widget.setAttribute("label", getGroupTitle(group));
+  initPanorama(win).then(() => {
+    group = group || getActiveGroup(win);
+    //logger.debug('buttons:refresh: group = ' + group + " " + getGroupTitle(group));
+    if (! group)
+      return;
+    let widget = win.document.getElementById("tabgroupsbtn-btn-menu");
+    if (widget)
+      widget.setAttribute("label", getGroupTitle(group));
+  });
 }
 
 function showGroups(menu) {
@@ -204,3 +207,5 @@ function registerWidgets() {
 
   createWidgetListener();
 }
+
+// vim:set ts=2 sw=2 et:

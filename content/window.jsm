@@ -116,7 +116,8 @@ function addTabContextMenu(win) {
 }
 
 function refreshGroups(win) {
-  buttons.refresh(win, getActiveGroup(win));
+  logger.debug("window:refreshGroups");
+  buttons.refresh(win);
   toolbar.refresh(win);
 }
 
@@ -132,11 +133,11 @@ function cleanEmptyTabs(win) {
     return;
   }
   let visibleTabs = group.getChildren().map(tabitem => tabitem.tab);
-  logger.info("cleanEmptyTabs: group visibleTabs:", visibleTabs.map(t => t.label));
+  // logger.info("cleanEmptyTabs: group visibleTabs:", visibleTabs.map(t => t.label));
 
   if (visibleTabs.length > 1) {
     let emptyTabs = visibleTabs.filter(tab => ! (tab.getAttribute("selected") || tab.hasAttribute("busy") || tab.hasAttribute("pending") || tab.getAttribute("pinned")) && isBlank(win, tab));
-    logger.info("cleanEmptyTabs", emptyTabs.map(t => t.label));
+    // logger.info("cleanEmptyTabs", emptyTabs.map(t => t.label));
     emptyTabs.forEach(tab => tabbrowser.removeTab(tab));
   }
 }
@@ -145,8 +146,9 @@ function registerEventListeners(win) {
   let tabcontainer = win.gBrowser.tabContainer;
 
   listen(tabcontainer, "TabSelect", e => {
-    // console.log("TabSelect", [e.target]);
-    refreshGroups(win);
+    logger.debug("window:registerEventListeners: TabSelect: " + e.target);
+    if (win.tabgroupsbtn.panoramaLoaded)
+      refreshGroups(win);
 
     // first tab select happens before session restore so we need to ignore it
     if (! win.tabgroupsbtn.canCloseEmptyTab) {
@@ -156,6 +158,7 @@ function registerEventListeners(win) {
         cleanEmptyTabs(win);
     }
   });
+  listen(win, "tabgroupsbtn-load-panorama", e => refreshGroups(win));
   listen(win, "tabgroupsbtn-group-renamed", e => refreshGroups(win));
   listen(win, "tabgroupsbtn-group-closed", e => refreshGroups(win));
   // listen(win.document, "SSTabRestoring", e => console.log("SSTabRestoring", e.originalTarget));
@@ -181,8 +184,12 @@ function registerEventListeners(win) {
   // unload(() => tabcontainer.addEventListener("TabClose", win.TabView._window.UI._eventListeners.close, false));
 }
 
+// initialize per window state
 function initState(win) {
   win.tabgroupsbtn = {
+    panoramaLoaded: false,
     canCloseEmptyTab: false
   };
 }
+
+// vim:set ts=2 sw=2 et:

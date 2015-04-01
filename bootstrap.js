@@ -8,9 +8,13 @@ Cu.import("resource://gre/modules/Services.jsm");
 let toolbar = {}, buttons = {}, window = {}, tabgroups = {}, prefs = {}, addon = {}, firstWindow = true;
 
 function processWindow(win) {
+  window.initState(win);
+
   toolbar.createToolbar(win);
   buttons.createContextMenu(win);
   toolbar.createContextMenu(win);
+
+  logger.debug("processWindow: firstWindow = " + firstWindow);
 
   if (firstWindow)
     toolbar.manualRefresh(win);
@@ -20,7 +24,6 @@ function processWindow(win) {
       toolbar.refresh(win);
     });
 
-  window.initState(win);
   window.addTabContextMenu(win);
   window.addLinkContextMenu(win);
   window.registerEventListeners(win);
