@@ -68,5 +68,3 @@ function shutdown(data, reason) {
   for (let module of ["addon", "prefs", "toolbar", "buttons", "window", "tabgroups", "utils", "ui", "log"])
     Cu.unload(`chrome://tabgroupsbtn/content/${module}.jsm`);
 }
-
-// vim:set ts=2 sw=2 et:

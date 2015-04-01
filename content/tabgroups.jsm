@@ -232,5 +232,3 @@ function mergeGroup(win, src, dst) {
   selectGroup(win, dst);
   closeGroup(win, src);
 }
-
-// vim:set sw=2 ts=2 et:

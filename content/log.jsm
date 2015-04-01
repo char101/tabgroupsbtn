@@ -35,5 +35,3 @@ logger.trace = function(text, params) {
   }
   Log.Logger.prototype.trace.call(logger, text + trace, params);
 }
-
-// vim:set ts=2 sw=2 et:
