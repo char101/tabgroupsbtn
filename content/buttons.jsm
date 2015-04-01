@@ -99,8 +99,8 @@ function createWidgetListener() {
   let listener = {
     onWidgetAdded: (widget, area, position) => {
       let win = getActiveWindow();
-      if (win)
-        refresh(win, getActiveGroup(win));
+      if (win && win.tabgroupsbtn.panoramaLoaded)
+        refresh(win);
     }
   };
   CustomizableUI.addListener(listener);

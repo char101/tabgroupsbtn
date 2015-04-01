@@ -27,6 +27,7 @@
 				<menuitem value="50" label="Warning"/>
 				<menuitem value="40" label="Info"/>
 				<menuitem value="20" label="Debug"/>
+				<menuitem value="10" label="Trace"/>
 			</menupopup>
 		</menulist>
 	</setting>

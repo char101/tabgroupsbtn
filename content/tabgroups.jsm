@@ -25,6 +25,7 @@ Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
 Cu.import("chrome://tabgroupsbtn/content/log.jsm");
 
 function initPanorama(win=null) {
+  logger.trace("initPanorama");
   if (win === null)
     win = getActiveWindow();
   if (! win)
@@ -35,6 +36,7 @@ function initPanorama(win=null) {
       win.tabgroupsbtn.panoramaLoaded = true;
       next();
     } else {
+      logger.warning("initPanorama failed");
       err();
     }
   }));
@@ -52,6 +54,7 @@ function getGroupItems(win) {
   let cw = tv.getContentWindow();
   if (! cw) {
     console.error("win.TabView.getContentWindow() is undefined");
+    console.trace();
     return;
   }
   return cw.GroupItems;

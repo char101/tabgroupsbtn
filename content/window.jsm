@@ -160,8 +160,11 @@ function registerEventListeners(win) {
 
   listen(tabcontainer, "TabSelect", e => {
     logger.debug("window:registerEventListeners: TabSelect: " + e.target);
-    if (win.tabgroupsbtn.panoramaLoaded)
-      refreshGroups(win);
+
+    if (! win.tabgroupsbtn.panoramaLoaded)
+      return;
+
+    refreshGroups(win);
 
     // first tab select happens before session restore so we need to ignore it
     if (! win.tabgroupsbtn.canCloseEmptyTab) {

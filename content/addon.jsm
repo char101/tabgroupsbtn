@@ -168,7 +168,7 @@ function patchMethod(obj, method, search, replace) {
   if (origCode == code)
     return;
   logger.info("Patching method " + method + " of " + obj);
-  logger.info(code);
+  // logger.info(code);
   code = "(" + code + ")";
 
   if (! obj.hasOwnProperty(method)) {

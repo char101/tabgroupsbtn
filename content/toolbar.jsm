@@ -141,30 +141,6 @@ function onToolbarMouseOver(event) {
   triggerEvent(win, "tabgroupsbtn-load-panorama");
 }
 
-function manualRefresh(win) {
-  logger.debug("toolbar:manualRefresh");
-  if (win === null)
-    win = getActiveWindow();
-  let doc = win.document;
-  let ti = doc.getElementById("tabgroupsbtn-bar");
-  if (! ti)
-    return;
-  let btn = createElement(doc, "toolbarbutton", {
-    id: "tabgroupsbtn-bar-manual-button",
-    class: "toolbarbutton-1 tabgroupsbtn-bar-manual",
-    label: "Load Panorama",
-  });
-  btn.addEventListener("command", e => {
-    ti.removeChild(btn);
-    refresh(win);
-  }, false);
-  ti.insertBefore(btn, ti.firstChild);
-
-  let toolbar = doc.getElementById("tabgroupsbtn-bar-toolbar");
-  if (toolbar)
-    toolbar.addEventListener("mouseover", onToolbarMouseOver, false);
-}
-
 function registerWidgets() {
   CustomizableUI.createWidget({
     id: "tabgroupsbtn-bar",
@@ -177,6 +153,17 @@ function registerWidgets() {
         flex: 1,
         mousethrough: "always",
       });
+
+      let btn = createElement(doc, "toolbarbutton", {
+        id: "tabgroupsbtn-bar-manual-button",
+        class: "toolbarbutton-1 tabgroupsbtn-bar-manual",
+        label: "Load Panorama",
+      });
+      btn.addEventListener("command", e => {
+        ti.removeChild(btn);
+        refresh(win);
+      }, false);
+      ti.insertBefore(btn, ti.firstChild);
 
       let placeholder = createElement(doc, "toolbarbutton", {
         id: "tabgroupsbtn-bar-placeholder",
@@ -244,7 +231,7 @@ function registerWidgets() {
   let listener = {
     onWidgetAdded: (widget, area, position) => {
       let win = getActiveWindow();
-      if (win)
+      if (win && win.tabgroupsbtn.panoramaLoaded)
         refresh(win);
     },
   };
@@ -372,6 +359,9 @@ function createToolbar(win) {
     context: "tabgroupsbtn-bar-toolbar-context"
   });
   toolbar.collapsed = getPref("bar.collapsed");
+
+  // load panorama on mouse over
+  toolbar.addEventListener("mouseover", onToolbarMouseOver, false);
 
   let observer = new win.MutationObserver(mutations => {
     if (! mutations.length)

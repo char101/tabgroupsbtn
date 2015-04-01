@@ -5,24 +5,16 @@ const Ci = Components.interfaces;
 const Cu = Components.utils;
 Cu.import("resource://gre/modules/Services.jsm");
 
-let toolbar = {}, buttons = {}, window = {}, tabgroups = {}, prefs = {}, addon = {}, firstWindow = true;
+let toolbar = {}, buttons = {}, window = {}, tabgroups = {}, prefs = {}, addon = {};
 
 function processWindow(win) {
+  logger.debug("processWindow");
+
   window.initState(win);
 
   toolbar.createToolbar(win);
   buttons.createContextMenu(win);
   toolbar.createContextMenu(win);
-
-  logger.debug("processWindow: firstWindow = " + firstWindow);
-
-  if (firstWindow)
-    toolbar.manualRefresh(win);
-  else
-    tabgroups.initPanorama(win).then(() => {
-      buttons.refresh(win);
-      toolbar.refresh(win);
-    });
 
   window.addTabContextMenu(win);
   window.addLinkContextMenu(win);
@@ -39,8 +31,6 @@ function processWindow(win) {
                                   "}\n" +
                                   "this.selectedTab = tab;"]
     ]);
-
-  firstWindow = false;
 }
 
 function install(data, reason) {}
@@ -61,7 +51,7 @@ function startup(data, reason) {
   Cu.import("chrome://tabgroupsbtn/content/window.jsm", window);
   Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm", tabgroups);
 
-  firstWindow = true;
+  // firstWindow = true;
 
   addon.addStylesheet("style.css");
   toolbar.registerWidgets();
@@ -80,3 +70,5 @@ function shutdown(data, reason) {
   for (let module of ["addon", "prefs", "toolbar", "buttons", "window", "tabgroups", "utils", "ui", "log"])
     Cu.unload(`chrome://tabgroupsbtn/content/${module}.jsm`);
 }
+
+// vim:set ts=2 sw=2 et:
