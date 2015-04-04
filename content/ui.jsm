@@ -6,9 +6,11 @@ const EXPORTED_SYMBOLS = [
 
 const Cu = Components.utils;
 Cu.import("resource://gre/modules/devtools/Console.jsm");
-Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
-Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
+Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
 Cu.import("chrome://tabgroupsbtn/content/relativetime.jsm");
+Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
+Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
+Cu.import("chrome://tabgroupsbtn/content/window.jsm");
 const Stash = Cu.import("chrome://tabgroupsbtn/content/stash.jsm", {});
 
 function showMergeMenu(popup, groupid) {
@@ -39,8 +41,23 @@ function showGroupContextMenu(popup, groupid=null) {
 
   clearPopup(popup);
 
+  let tabItems = group.getChildren();
+
+  let tabsSubmenuMin = getPref("tabs-submenu-min");
+  let parent = null;
+  if (tabsSubmenuMin > 0 && tabItems.length >= tabsSubmenuMin) {
+    let tabsMenu = createElement(doc, "menu", {label: `Tabs (${tabItems.length})`});
+    let tabsPopup = createElement(doc, "menupopup");
+    tabsMenu.appendChild(tabsPopup);
+    popup.appendChild(tabsMenu)
+    parent = tabsPopup;
+  } else {
+    popup.appendChild(createElement(doc, "menuitem", {label: "TABS", disabled: true}));
+    parent = popup;
+  }
+
   // items in group
-  for (let ti of group.getChildren()) {
+  for (let ti of tabItems) {
     let tab = ti.tab;
     let mi = createElement(doc, "menuitem", {
         label: tab.label,
@@ -50,55 +67,80 @@ function showGroupContextMenu(popup, groupid=null) {
         command: e => selectTab(win, tab)
       }
     );
-    popup.appendChild(mi);
+    parent.appendChild(mi);
   }
 
-  // stashed urls
-  let stash = Stash.list(win, groupid);
-  if (stash !== undefined && stash.length > 0) {
-    popup.appendChild(createElement(doc, "menuseparator"));
-    popup.appendChild(createElement(doc, "menuitem", {label: "Stashed URLs", disabled: true}));
+  if (getPref("stash")) {
+    // stashed urls
+    let stash = Stash.list(win, groupid);
+    if (stash !== undefined && stash.length > 0) {
+      popup.appendChild(createElement(doc, "menuseparator"));
 
-    let now = new Date();
-    for (let i = 0, n = stash.length; i < n; ++i) {
-      let [label, url, ts] = stash[i];
-      let mi = createElement(doc, "menuitem", {
-        label: label,
-        tooltiptext: url,
-        acceltext: toRelativeTime(new Date(ts), {now: now})
-      }, {
-        command: e => Stash.pop(win, groupid, url)
-      });
-      popup.appendChild(mi);
+      let stashSubmenuMin = getPref("stash-submenu-min");
+      let parent = null;
+      if (stashSubmenuMin > 0 && stash.length >= stashSubmenuMin) {
+        let stashMenu = createElement(doc, "menu", {label: `Stash (${stash.length})`});
+        let stashPopup = createElement(doc, "menupopup");
+        stashMenu.appendChild(stashPopup);
+        popup.appendChild(stashMenu);
+        parent = stashPopup;
+      } else {
+        parent = popup;
+        popup.appendChild(createElement(doc, "menuitem", {label: "STASH", disabled: true}));
+      }
+
+      let now = new Date();
+      for (let i = 0, n = stash.length; i < n; ++i) {
+        let [label, url, ts] = stash[i];
+        let mi = createElement(doc, "menuitem", {
+          label: label,
+          tooltiptext: url,
+          acceltext: toRelativeTime(new Date(ts), {now: now})
+        }, {
+          command: e => Stash.pop(win, groupid, url)
+        });
+        parent.appendChild(mi);
+      }
     }
   }
 
   // group operations
   popup.appendChild(createElement(doc, "menuseparator"));
-  popup.appendChild(createElement(doc, "menuitem", {label: "Rename Group"}, {
+  popup.appendChild(createElement(doc, "menuitem", {
+    label: "Rename Group"
+  }, {
     command: e => renameGroup(null, groupid)
   }));
 
   if (getGroupCount(win) > 1) {
-    let mergePopup = createElement(doc, "menupopup", null, {popupshowing: e => {
-      e.stopPropagation();
-      showMergeMenu(e.target, groupid);
-    }});
-    popup.appendChild(createElement(doc, "menu", {
-      label: "Merge Group",
-    }, null, mergePopup));
-
     popup.appendChild(createElement(doc, "menuitem", {
       label: "Close Group"
     }, {
       command: e => closeGroup(null, groupid, true)
     }));
+
+    let mergePopup = createElement(doc, "menupopup", null, {popupshowing: e => {
+      e.stopPropagation();
+      showMergeMenu(e.target, groupid);
+    }});
+    popup.appendChild(createElement(doc, "menu", {
+      label: "Merge Group To...",
+    }, null, mergePopup));
   }
+
+  popup.appendChild(createElement(doc, "menuitem", {
+    label: "Close All Tabs in Group"
+  }, {
+    command: e => {
+      clearGroup(null, groupid);
+      cleanEmptyTabs();
+    }
+  }));
 
   let isActive = groupid == getActiveGroup(win).id;
 
-  if (isActive) {
-    let mi = createElement(doc, "menuitem", {label: "Stash"}, {command: e => Stash.putGroup(win, groupid)});
+  if (isActive && getPref("stash")) {
+    let mi = createElement(doc, "menuitem", {label: "Stash All Tabs in Group"}, {command: e => Stash.putGroup(win, groupid)});
     popup.appendChild(mi);
   }
 }

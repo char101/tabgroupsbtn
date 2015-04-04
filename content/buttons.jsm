@@ -7,14 +7,15 @@ let EXPORTED_SYMBOLS = [
 ];
 
 const Cu = Components.utils;
-Cu.import("resource://gre/modules/devtools/Console.jsm");
 Cu.import("resource:///modules/CustomizableUI.jsm");
+Cu.import("resource://gre/modules/devtools/Console.jsm");
 Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
-Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
-Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
-Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
-Cu.import("chrome://tabgroupsbtn/content/ui.jsm");
 Cu.import("chrome://tabgroupsbtn/content/log.jsm");
+Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
+Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
+Cu.import("chrome://tabgroupsbtn/content/ui.jsm");
+Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
+Cu.import("chrome://tabgroupsbtn/content/window.jsm");
 
 function isInsideToolbar(win) {
   let widget = win.document.getElementById("tabgroupsbtn-btn-menu");
@@ -89,7 +90,11 @@ function createContextMenu(win) {
   let doc = win.document;
   let popupset = doc.getElementById("mainPopupSet");
 
-  let context = createElement(doc, "menupopup", {id: "tabgroupsbtn-btn-menu-context"}, {popupshowing: e => showGroupContextMenu(e.target, e.target.triggerNode.getAttribute("value"))});
+  let context = createElement(doc, "menupopup", {id: "tabgroupsbtn-btn-menu-context"});
+  context.addEventListener("popupshowing", e => {
+    if (e.target == context)
+      showGroupContextMenu(e.target, e.target.triggerNode.getAttribute("value"));
+  });
   popupset.appendChild(context);
 
   unload(() => popupset.removeChild(context));
@@ -150,9 +155,17 @@ function registerWidgets() {
               el.open = true;
             }
           }
-        },
-        createElement(doc, "menupopup", null, {popupshowing: e => initPanorama().then(() => showGroups(e.target))})
+        }
       );
+      let menubtnPopup = createElement(doc, "menupopup");
+      menubtnPopup.addEventListener("popupshowing", e => {
+        if (e.target == menubtnPopup)
+          initPanorama().then(() => {
+            refreshGroups();
+            showGroups(e.target);
+          });
+      });
+      menubtn.appendChild(menubtnPopup);
       container.appendChild(menubtn);
 
       if (! getPref("closebtn-disabled")) {

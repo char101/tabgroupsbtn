@@ -50,15 +50,19 @@ function put(win, tab) {
 
 function putGroup(win, groupId) {
   let group = getGroup(win, groupId);
+  let tabItems = group.getChildren();
+  let ntabs = tabItems.length;
+
+  if (!confirm("Confirm Close All Tabs", `You are about to stash all tabs in group ${getGroupTitle(group)} (${ntabs} tab${ntabs > 0 ? 's' : ''}). Are you sure you want to continue?`))
+    return;
 
   let stash = win.tabgroupsbtn.stash;
+
   if (typeof stash[groupId] === "undefined")
     stash[groupId] = {};
-
   let groupStash = stash[groupId];
 
-  let tabItems = group.getChildren();
-
+  // collect the target first so that we can check if adding a blank tab is required
   let stashTarget = [];
   for (let ti of tabItems) {
     let tab = ti.tab;
@@ -71,14 +75,15 @@ function putGroup(win, groupId) {
   if (stashTarget.length == tabItems.length)
     win.gBrowser.addTab();
 
+  // save stash first
   let now = Date.now();
-  for (let tab of stashTarget) {
-    let url = getURL(win, tab);
-    groupStash[url] = [tab.label, now];
-    win.gBrowser.removeTab(tab);
-  }
-
+  for (let tab of stashTarget)
+    groupStash[getURL(win, tab)] = [tab.label, now];
   save(win);
+
+  // then close the tabs
+  for (let tab of stashTarget)
+    win.gBrowser.removeTab(tab);
 }
 
 function pop(win, groupid, url) {

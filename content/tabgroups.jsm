@@ -14,6 +14,7 @@ const EXPORTED_SYMBOLS = [
   "promptCreateGroup",
   "createSubGroup",
   "closeGroup",
+  "clearGroup",
   "renameGroup",
   "mergeGroup",
 ];
@@ -212,6 +213,26 @@ function closeGroup(win=null, groupid=null, doConfirm=false) {
   group.destroy({immediately: true});
   triggerEvent(win, "tabgroupsbtn-group-closed");
   return true;
+}
+
+function clearGroup(win, groupid) {
+  logger.info("clearGroup", groupid);
+  win = win || getActiveWindow();
+  let group = getGroup(win, groupid);
+  let tabItems = group.getChildren();
+  let ntabs = tabItems.length;
+
+  if (!confirm("Confirm Close All Tabs", `You are about to close all tabs in group ${getGroupTitle(group)} (${ntabs} tab${ntabs > 0 ? 's' : ''}). Are you sure you want to continue?`))
+    return;
+
+  selectGroup(win, groupid);
+  let blankTab = win.gBrowser.addTab();
+
+  for (let item of group.getChildren()) {
+    let tab = item.tab;
+    if (tab != blankTab)
+      win.gBrowser.removeTab(tab);
+  }
 }
 
 function renameGroup(win=null, groupid=null) {

@@ -28,10 +28,14 @@ function getPref(key, defval=null) {
         case "bar.button": return false;
         case "bar.position": return "top-last";
         case "bar.collapsed": return false;
+        case "bar.no_separator": return false;
         case "clean-empty-tabs": return false;
         case "skip-pending": return false;
         case "log-level": return 60;
         case "log-to-file": return false;
+        case "stash": return false;
+        case "stash-submenu-min": return 0;
+        case "tabs-submenu-min": return 0;
         default:
           console.log("tabgroupsbtn: Unknown preference: " + key);
           return undefined;

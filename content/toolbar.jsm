@@ -2,7 +2,6 @@
 
 const EXPORTED_SYMBOLS = [
   "refresh",
-  "manualRefresh",
   "createToolbar",
   "registerWidgets",
   "createContextMenu",
@@ -39,7 +38,11 @@ function createContextMenu(win) {
   let doc = win.document;
   let popupset = doc.getElementById("mainPopupSet");
 
-  let context = createElement(doc, "menupopup", {id: "tabgroupsbtn-bar-context"}, {popupshowing: event => showGroupContextMenu(event.target, event.target.triggerNode.getAttribute("value"))});
+  let context = createElement(doc, "menupopup", {id: "tabgroupsbtn-bar-context"});
+  context.addEventListener("popupshowing", e => {
+    if (e.target == context)
+      showGroupContextMenu(e.target, e.target.triggerNode.getAttribute("value"))
+  });
   popupset.appendChild(context);
   unload(() => popupset.removeChild(context));
 
@@ -69,9 +72,17 @@ function refresh(win=null) {
   if (win === null)
     win = getActiveWindow();
   let doc = win.document;
+
+  // check container exists
   let items = doc.getElementById("tabgroupsbtn-bar-items");
   if (! items)
     return;
+
+  // remove manual button (refresh is not triggered by load panorama button)
+  let manualBtn = doc.getElementById("tabgroupsbtn-bar-manual-button");
+  if (manualBtn)
+    manualBtn.remove();
+
   initPanorama(win).then(() => {
     let groups = getGroupList(win, true);
 
@@ -99,6 +110,8 @@ function refresh(win=null) {
     } else {
       clearChildren(items);
 
+      let addSeparator = !getPref("bar.no_separator");
+
       for (let i = 0, n = groups.length; i < n; ++i) {
         let [id, title, active, group] = groups[i];
         let btn = createElement(doc, "toolbarbutton", {
@@ -119,7 +132,7 @@ function refresh(win=null) {
         if (active)
           btn.checked = true;
 
-        if (i < n - 1)
+        if (addSeparator && i < n - 1)
           items.appendChild(createElement(doc, "toolbarseparator", {class: "tabgroupsbtn-bar-separator"}));
       }
     }

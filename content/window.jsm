@@ -5,7 +5,9 @@ const EXPORTED_SYMBOLS = [
   "addTabContextMenu",
   "registerEventListeners",
   "sessionRestored",
-  "initState"
+  "initState",
+  "refreshGroups",
+  "cleanEmptyTabs"
 ];
 
 const Cu = Components.utils;
@@ -103,7 +105,8 @@ function addTabContextMenu(win) {
     if (e.target == tabcontextmenu) {
       let tab = e.target.triggerNode;
       logger.debug("tabContextMenu onpopupshowing", [isBlank(win, tab), tab]);
-      doc.getElementById("tabgroupsbtn-menuitem-stash").disabled = isBlank(win, tab);
+      if (getPref("stash"))
+        doc.getElementById("tabgroupsbtn-menuitem-stash").disabled = isBlank(win, tab);
     }
   });
 
@@ -117,7 +120,7 @@ function addTabContextMenu(win) {
   }
 
   // Add stash menu item
-  {
+  if (getPref("stash")) {
     let item = createElement(doc, "menuitem", {
       id: "tabgroupsbtn-menuitem-stash",
       label: "Stash"
@@ -136,8 +139,9 @@ function addTabContextMenu(win) {
   }
 }
 
-function refreshGroups(win) {
+function refreshGroups(win=null) {
   logger.debug("window:refreshGroups");
+  win = win || getActiveWindow();
   Buttons.refresh(win);
   Toolbar.refresh(win);
 }
@@ -156,6 +160,7 @@ function isClosable(win, tab) {
 }
 
 function cleanEmptyTabs(win) {
+  win = win || getActiveWindow();
   let tabbrowser = win.gBrowser;
 
   // tabbrowser.visibleTabs sometimes include tabs from other group

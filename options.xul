@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
 <vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-	<setting pref="extensions.tabgroupsbtn.closebtn-disabled" type="bool" title="Hide close group button"/>
-	<setting pref="extensions.tabgroupsbtn.newbtn-disabled" type="bool" title="Hide new group button"/>
+	<setting title="Dropdown Widget" type="control" style="font-weight:bold"/>
+	<setting pref="extensions.tabgroupsbtn.closebtn-disabled" type="bool" title="Hide close button"/>
+	<setting pref="extensions.tabgroupsbtn.newbtn-disabled" type="bool" title="Hide new button"/>
 	<setting pref="extensions.tabgroupsbtn.mouseover" type="bool" title="Open menu on mouse over"/>
-	<setting pref="extensions.tabgroupsbtn.bar.button" type="bool" title="Display tabs as button in toolbar"/>
 
+	<setting title="Toolbar Widget" type="control" style="font-weight:bold"/>
+	<setting pref="extensions.tabgroupsbtn.bar.button" type="bool" title="Display tabs as buttons in toolbar"/>
 	<setting pref="extensions.tabgroupsbtn.bar.position" type="menulist" title="Toolbar position">
 		<menulist>
 			<menupopup>
@@ -17,10 +19,26 @@
 			</menupopup>
 		</menulist>
 	</setting>
-	<setting pref="extensions.tabgroupsbtn.clean-empty-tabs" type="bool" title="(Extra) Close unused blank tab"/>
-	<setting pref="extensions.tabgroupsbtn.skip-pending" type="bool" title="(Extra) Prevent unloaded tab from being selected after closing current tab (incompatible with BarTab Heavy)"/>
+	<setting pref="extensions.tabgroupsbtn.bar.no_separator" type="bool" title="Disable separator between buttons"/>
 
-	<setting pref="extensions.tabgroupsbtn.log-level" type="menulist" title="(Debugging) Log level">
+	<setting title="Context Menu" type="control" style="font-weight:bold"/>
+	<setting pref="extensions.tabgroupsbtn.tabs-submenu-min" title="Use submenu when the number of tabs &#8805;" type="integer" style="width:2em"/>
+
+	<setting title="Extras" type="control" style="font-weight:bold"/>
+	<setting pref="extensions.tabgroupsbtn.clean-empty-tabs" type="bool" title="Close unused blank tabs"/>
+	<setting title="When opening a new blank tab, any existing blank tabs will be closed" type="control" style="opacity:0.5;border-top:0"/>
+	<setting pref="extensions.tabgroupsbtn.skip-pending" type="bool" title="Prevent Firefox from selecting an unloaded tab after closing current tab"/>
+	<setting title="Note: incompatible with BarTab Heavy" type="control" style="opacity:0.5;border-top:0"/>
+
+	<setting title="Tab Stash" type="control" style="font-weight:bold"/>
+	<setting pref="extensions.tabgroupsbtn.stash" type="bool" title="Enable tab stashing"/>
+	<setting title="If you stash a tab or a group, the tab/tabs in the group will be closed and the URL will be put in the stash list. The stash list can be accesed from the group context menu. When you click on a stashed URL, the URL will be removed from the stash and opened in a new tab." type="control" style="opacity:0.5;border-top:0"/>
+	<setting title="The stash is stored in the sessionsstore. The sessionstore is a semi-permanent storage. It will be cleared when you start your browser with a blank page or when you close a group. To backup your sessionstore you can install the Session Manager addon." type="control" style="opacity:0.5;border-top:0"/>
+	<setting title="You can stash a tab from the tab context menu. You can also stash all tabs in a group from the group context menu." type="control" style="opacity:0.5;border-top:0"/>
+	<setting pref="extensions.tabgroupsbtn.stash-submenu-min" title="Use submenu when the number of stashed URLS &#8805;" type="integer" style="width:2em"/>
+
+	<setting title="Debugging" type="control" style="font-weight:bold"/>
+	<setting pref="extensions.tabgroupsbtn.log-level" type="menulist" title="Log level">
 		<menulist>
 			<menupopup>
 				<menuitem value="60" label="Error"/>
@@ -31,7 +49,7 @@
 			</menupopup>
 		</menulist>
 	</setting>
-	<setting pref="extensions.tabgroupsbtn.log-to-file" type="bool" title="(Debugging) Log to file ([tempdir]/tabgroupsbtn.log)"/>
+	<setting pref="extensions.tabgroupsbtn.log-to-file" type="bool" title="Log to file ($TEMP/tabgroupsbtn.log), otherwise log to Firefox console"/>
 
-	<setting title="To apply setting disable then enable the addon." type="control"/>
+	<setting title="To apply the changes disable then enable the addon." type="control" style="opacity:0.5;border-top:0"/>
 </vbox>
