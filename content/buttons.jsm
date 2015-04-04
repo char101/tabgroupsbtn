@@ -213,6 +213,7 @@ function registerWidgets() {
       return ti;
     }
   });
+
   unload(() => {
     logger.info("CustomizableUI.destroyWidget(tabgroupsbtn-btn)");
     CustomizableUI.destroyWidget("tabgroupsbtn-btn");

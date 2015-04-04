@@ -107,14 +107,14 @@ function showGroupContextMenu(popup, groupid=null) {
   // group operations
   popup.appendChild(createElement(doc, "menuseparator"));
   popup.appendChild(createElement(doc, "menuitem", {
-    label: "Rename Group"
+    label: "Rename"
   }, {
     command: e => renameGroup(null, groupid)
   }));
 
   if (getGroupCount(win) > 1) {
     popup.appendChild(createElement(doc, "menuitem", {
-      label: "Close Group"
+      label: "Close"
     }, {
       command: e => closeGroup(null, groupid, true)
     }));
@@ -124,12 +124,12 @@ function showGroupContextMenu(popup, groupid=null) {
       showMergeMenu(e.target, groupid);
     }});
     popup.appendChild(createElement(doc, "menu", {
-      label: "Merge Group To...",
+      label: "Merge To...",
     }, null, mergePopup));
   }
 
   popup.appendChild(createElement(doc, "menuitem", {
-    label: "Close All Tabs in Group"
+    label: "Close All Tabs"
   }, {
     command: e => {
       clearGroup(null, groupid);
@@ -140,7 +140,7 @@ function showGroupContextMenu(popup, groupid=null) {
   let isActive = groupid == getActiveGroup(win).id;
 
   if (isActive && getPref("stash")) {
-    let mi = createElement(doc, "menuitem", {label: "Stash All Tabs in Group"}, {command: e => Stash.putGroup(win, groupid)});
+    let mi = createElement(doc, "menuitem", {label: "Stash All Tabs"}, {command: e => Stash.putGroup(win, groupid)});
     popup.appendChild(mi);
   }
 }
