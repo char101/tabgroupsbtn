@@ -70,9 +70,19 @@ function addLinkContextMenu(win) {
   });
 }
 
-function showTabContextMenu(win, popup) {
+function showMoveToGroupMenu(win, popup) {
   let tab = popup.parentNode.parentNode.triggerNode;
   let doc = win.document;
+  let popupId = popup.parentNode.id;
+
+  let inBackground = undefined;
+  if (popupId == "tabgroupsbtn-menu-movetogroup") {
+    inBackground = false;
+  } else if (popupId == "tabgroupsbtn-menu-movetogroupbg") {
+    inBackground = true;
+  } else {
+    return;
+  }
 
   clearPopup(popup);
   for (let gr of getGroupList(win)) {
@@ -82,7 +92,7 @@ function showTabContextMenu(win, popup) {
       label: title,
       disabled: active
     }, {
-      command: e => moveTabToGroup(win, tab, id, e.ctrlKey)
+      command: e => moveTabToGroup(win, tab, id, e.ctrlKey || inBackground)
     }));
   }
   if (getActiveGroup(win).getChildren().length > 1) {
@@ -101,34 +111,36 @@ function addTabContextMenu(win) {
   let doc = win.document;
   let tabcontextmenu = doc.getElementById("tabContextMenu");
 
-  listen(tabcontextmenu, "popupshowing", e => {
-    if (e.target == tabcontextmenu) {
-      let tab = e.target.triggerNode;
-      logger.debug("tabContextMenu onpopupshowing", [isBlank(win, tab), tab]);
-      if (getPref("stash"))
-        doc.getElementById("tabgroupsbtn-menuitem-stash").disabled = isBlank(win, tab);
-    }
-  });
 
-  // Add move to group menu item
-  {
-    let menu = createElement(doc, "menu", {id: "tabgroupsbtn-menu-movetogroup", label: "Move to Group"});
-    let popup = createElement(doc, "menupopup", null, {popupshowing: e => showTabContextMenu(win, e.target)});
+  function addPopup(id, label, idAfter) {
+    let menu = createElement(doc, "menu", {id: id, label: label});
+    let popup = createElement(doc, "menupopup", null);
+    popup.addEventListener("popupshowing", e => {
+      if (e.target == popup) {
+        showMoveToGroupMenu(win, e.target);
+      }
+    });
     menu.appendChild(popup);
-    tabcontextmenu.insertBefore(menu, doc.getElementById("context_openTabInWindow").nextSibling);
+    tabcontextmenu.insertBefore(menu, doc.getElementById(idAfter).nextSibling);
     unload(() => tabcontextmenu.removeChild(menu));
   }
 
+  addPopup("tabgroupsbtn-menu-movetogroup", "Move to Group", "context_openTabInWindow");
+  addPopup("tabgroupsbtn-menu-movetogroupbg", "Move to Group (in Background)", "tabgroupsbtn-menu-movetogroup");
+
   // Add stash menu item
   if (getPref("stash")) {
-    let item = createElement(doc, "menuitem", {
-      id: "tabgroupsbtn-menuitem-stash",
-      label: "Stash"
-    }, {
-      command: e => Stash.put(win, e.target.parentNode.triggerNode)
-    });
-    tabcontextmenu.insertBefore(item, doc.getElementById("tabgroupsbtn-menu-movetogroup").nextSibling);
+    let item = createMenuItem(doc, {id: "tabgroupsbtn-menuitem-stash", label: "Stash"}, e => Stash.put(win, e.target.parentNode.triggerNode));
+    insertAfter(doc, tabcontextmenu, "tabgroupsbtn-menu-movetogroupbg", item);
     unload(() => tabcontextmenu.removeChild(item))
+
+    // disable stash context menu on blank tabs
+    listen(tabcontextmenu, "popupshowing", e => {
+      if (e.target == tabcontextmenu) {
+        let tab = e.target.triggerNode;
+        doc.getElementById("tabgroupsbtn-menuitem-stash").disabled = isBlank(win, tab);
+      }
+    });
   }
 
   // Disable builtin move to group menu item
@@ -160,6 +172,8 @@ function isClosable(win, tab) {
 }
 
 function cleanEmptyTabs(win) {
+  logger.debug("cleanEmptyTabs");
+
   win = win || getActiveWindow();
   let tabbrowser = win.gBrowser;
 
