@@ -19,8 +19,7 @@ const EXPORTED_SYMBOLS = [
   "mergeGroup",
 ];
 
-const Cu = Components.utils;
-Cu.import("resource://gre/modules/devtools/Console.jsm");
+const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("chrome://tabgroupsbtn/content/utils.jsm");
 Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
 Cu.import("chrome://tabgroupsbtn/content/log.jsm");
@@ -52,17 +51,17 @@ function initPanorama(win=null) {
 
 function getGroupItems(win) {
   if (! win) {
-    console.error("getGroupItems: win is undefined");
+    logger.error("getGroupItems: win is undefined");
   }
   let tv = win.TabView;
   if (! tv) {
-    console.error("win.TabView is undefined");
+    logger.error("win.TabView is undefined");
     return;
   }
   let cw = tv.getContentWindow();
   if (! cw) {
-    console.error("win.TabView.getContentWindow() is undefined");
-    console.trace();
+    logger.error("win.TabView.getContentWindow() is undefined");
+    logger.trace();
     return;
   }
   return cw.GroupItems;
