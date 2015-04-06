@@ -33,5 +33,6 @@ logger.trace = function(text, params) {
       frame = frame.caller;
     }
   }
+  text = text || "";
   Log.Logger.prototype.trace.call(logger, text + trace, params);
 }
