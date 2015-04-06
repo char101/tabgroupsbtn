@@ -67,6 +67,12 @@ function getTooltipText(group) {
   return tooltip;
 }
 
+function addBadge(doc, btn, value, left, right) {
+  let h = createElement(doc, "hbox", {class: "tabgroupsbtn-bar-badge"})
+  h.textContent = left + value + right;
+  btn.appendChild(h);
+}
+
 function refresh(win=null) {
   //logger.debug("toolbar:refresh");
   if (win === null)
@@ -83,6 +89,17 @@ function refresh(win=null) {
   if (manualBtn)
     manualBtn.remove();
 
+  let showTabCount = getPref("bar.tabcount");
+  let tabCountLeft = "";
+  let tabCountRight = "";
+  if (showTabCount) {
+    let tabCountStyle = getPref("bar.tabcount-style");
+    [tabCountLeft, tabCountRight] = tabCountStyle.split("|");
+    if (tabCountRight === undefined) {
+      tabCountRight = "";
+    }
+  }
+
   initPanorama(win).then(() => {
     let groups = getGroupList(win, true);
 
@@ -93,6 +110,7 @@ function refresh(win=null) {
         let [id, title, active, group] = gr;
         let tab = createElement(doc, "tab", {
           id: "tabgroupsbtn-bar-tab-" + id,
+          class: "tabgroupsbtn-bar-tab",
           label: title,
           selected: active,
           value: id,
@@ -106,6 +124,10 @@ function refresh(win=null) {
           }
         });
         items.appendChild(tab);
+
+        if (showTabCount) {
+          addBadge(doc, tab, group.getChildren().length, tabCountLeft, tabCountRight);
+        }
       }
     } else {
       clearChildren(items);
@@ -128,12 +150,21 @@ function refresh(win=null) {
             selectGroup(win, id);
           }
         });
-        items.appendChild(btn);
-        if (active)
-          btn.checked = true;
 
-        if (addSeparator && i < n - 1)
+        items.appendChild(btn);
+
+        // must be set after appendChild above
+        if (active) {
+          btn.checked = true;
+        }
+
+        if (showTabCount) {
+          addBadge(doc, btn, group.getChildren().length, tabCountLeft, tabCountRight);
+        }
+
+        if (addSeparator && i < n - 1) {
           items.appendChild(createElement(doc, "toolbarseparator", {class: "tabgroupsbtn-bar-separator"}));
+        }
       }
     }
   });
