@@ -112,6 +112,14 @@ toolbarpaletteitem > #tabgroupsbtn-bar > #tabgroupsbtn-bar-container {
   -moz-border-left-colors: transparent transparent rgba(128, 128, 128, 0.75);
   -moz-border-right-colors: transparent transparent rgba(255, 255, 255, 0.5);
 }
+.tabgroupsbtn-bar-button .tabgroupsbtn-bar-badge,
+.tabgroupsbtn-bar-tab .tabgroupsbtn-bar-badge {
+  margin-top: -5px;
+  margin-left: 2px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #888;
+}
 #main-window[tabsintitlebar][sizemode="normal"]:not([inFullscreen])[chromehidden~="menubar"] #toolbar-menubar + #tabgroupsbtn-bar-toolbar,
 #main-window[tabsintitlebar][sizemode="normal"]:not([inFullscreen]) #toolbar-menubar[autohide="true"][inactive] + #tabgroupsbtn-bar-toolbar {
   margin-top: 18px;

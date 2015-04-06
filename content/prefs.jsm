@@ -29,6 +29,8 @@ function getPref(key, defval=null) {
         case "bar.position": return "top-last";
         case "bar.collapsed": return false;
         case "bar.no_separator": return false;
+        case "bar.tabcount": return false;
+        case "bar.tabcount-style": return "";
         case "clean-empty-tabs": return false;
         case "skip-pending": return false;
         case "log-level": return 60;

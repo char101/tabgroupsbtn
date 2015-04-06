@@ -8,6 +8,18 @@
 	<setting title="Buttons Widget" type="control" style="font-weight:bold"/>
 	<setting pref="extensions.tabgroupsbtn.bar.button" type="bool" title="Display tabs as buttons in toolbar"/>
 	<setting pref="extensions.tabgroupsbtn.bar.no_separator" type="bool" title="Disable separator between buttons"/>
+	<setting pref="extensions.tabgroupsbtn.bar.tabcount" type="bool" title="Show tab count"/>
+	<setting pref="extensions.tabgroupsbtn.bar.tabcount-style" type="menulist" title="Tab count format">
+		<menulist>
+			<menupopup>
+				<menuitem value="" label="123"/>
+				<menuitem value="(|)" label="(123)"/>
+				<menuitem value="[|]" label="[123]"/>
+				<menuitem value="{|}" label="{123}"/>
+				<menuitem value="&lt;|&gt;" label="&lt;123&gt;"/>
+			</menupopup>
+		</menulist>
+	</setting>
 
 	<setting title="Toolbar" type="control" style="font-weight:bold"/>
 	<setting pref="extensions.tabgroupsbtn.bar.position" type="menulist" title="Toolbar position">
