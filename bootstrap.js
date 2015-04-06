@@ -3,7 +3,7 @@
 const {utils: Cu, classes: Cc, interfaces: Ci} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 
-const Addon = {}, Buttons = {}, Toolbar = {}, Window = {};
+const Addon = {}, Buttons = {}, Toolbar = {}, Window = {}, Prefs = {};
 
 function processWindow(win) {
   Cu.import("chrome://tabgroupsbtn/content/log.jsm");
@@ -17,7 +17,7 @@ function processWindow(win) {
 
   Window.registerEventListeners(win);
 
-  if (prefs.getPref("skip-pending"))
+  if (Prefs.getPref("skip-pending"))
     Addon.patchMethod(win.gBrowser, "_blurTab", [
       ["!aTab.owner.closing &&", "!aTab.owner.closing && !aTab.owner.hasAttribute('pending') &&"],
       ["if (!tab) {", "if (!tab || tab.hasAttribute('pending')) {"],
@@ -45,6 +45,7 @@ function startup(data, reason) {
   Cu.import("chrome://tabgroupsbtn/content/toolbar.jsm", Toolbar);
   Cu.import("chrome://tabgroupsbtn/content/buttons.jsm", Buttons);
   Cu.import("chrome://tabgroupsbtn/content/window.jsm", Window);
+  Cu.import("chrome://tabgroupsbtn/content/prefs.jsm", Prefs);
 
   Addon.addStylesheet("style.css");
   Toolbar.registerWidgets();
