@@ -4,7 +4,9 @@ const EXPORTED_SYMBOLS = [
   "getActiveWindow",
   // dom
   "createElement",
+  "createMenuItem",
   "appendChild",
+  "insertAfter",
   "clearChildren",
   "clearPopup",
   "clearTabs",
@@ -28,12 +30,12 @@ const EXPORTED_SYMBOLS = [
 ];
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-Cu.import("resource://gre/modules/Services.jsm");
 const FM = Cc["@mozilla.org/focus-manager;1"].getService(Ci.nsIFocusManager);
-Cu.import("resource://gre/modules/devtools/Console.jsm");
+Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("chrome://tabgroupsbtn/content/addon.jsm");
 Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
 Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
+Cu.import("chrome://tabgroupsbtn/content/log.jsm");
 
 function getActiveWindow() Services.wm.getMostRecentWindow("navigator:browser")
 
@@ -61,9 +63,25 @@ function createElement(doc, tag, attributes, eventhandlers, ...children) {
   return el;
 }
 
+function createMenuItem(doc, attributes, oncommand) createElement(doc, "menuitem", attributes, {command: oncommand});
+
 function appendChild(parent, ...children) {
-  for (let child of children)
+  for (let child of children) {
     parent.appendChild(child);
+  }
+}
+
+function insertAfter(doc, parent, afterId, element) {
+  let afterElem = doc.getElementById(afterId);
+  if (afterElem) {
+    if (afterElem.nextSibling) {
+      parent.insertBefore(element, afterElem.nextSibling);
+    } else {
+      parent.appendChild(element);
+    }
+  } else {
+    logger.warning("Cannot insert after " + afterId);
+  }
 }
 
 function prompt(title, text, value) {
@@ -125,12 +143,16 @@ function selectTab(win, tab) {
 }
 
 function moveTabToGroup(win, tab, groupid, inBackground=false) {
+  logger.debug(`moveTabToGroup tab=${tab.label} groupid=${groupid} inBackground=${inBackground}`);
+
   let activegroup = getActiveGroup(win);
   if (activegroup.getChildren().length == 1)
     activegroup.newTab();
   getGroupItems(win).moveTabToGroupItem(tab, groupid);
-  if (! inBackground)
+  if (! inBackground) {
     selectTab(win, tab);
+    cleanEmptyTabs();
+  }
 }
 
 function moveTabToNewGroup(win, tab) {
