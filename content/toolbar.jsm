@@ -16,6 +16,7 @@ Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm");
 Cu.import("chrome://tabgroupsbtn/content/prefs.jsm");
 Cu.import("chrome://tabgroupsbtn/content/ui.jsm");
 Cu.import("chrome://tabgroupsbtn/content/log.jsm");
+const Stash = Cu.import("chrome://tabgroupsbtn/content/stash.jsm", {});
 
 function clearToolbarSelectedState(container) {
   let children = container.children;
@@ -67,9 +68,13 @@ function getTooltipText(group) {
   return tooltip;
 }
 
-function addBadge(doc, btn, value, left, right) {
+function addBadge(doc, btn, ntabs, nstash, left, right) {
   let h = createElement(doc, "hbox", {class: "tabgroupsbtn-bar-badge"})
-  h.textContent = left + value + right;
+  let text = left + ntabs + right;
+  if (nstash) {
+    text += " (" + nstash + ")";
+  }
+  h.textContent = text;
   btn.appendChild(h);
 }
 
@@ -159,7 +164,7 @@ function refresh(win=null) {
         }
 
         if (showTabCount) {
-          addBadge(doc, btn, group.getChildren().length, tabCountLeft, tabCountRight);
+          addBadge(doc, btn, group.getChildren().length, Stash.count(win, id), tabCountLeft, tabCountRight);
         }
 
         if (addSeparator && i < n - 1) {

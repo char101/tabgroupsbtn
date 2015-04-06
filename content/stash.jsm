@@ -1,6 +1,6 @@
 "use strict";
 
-const EXPORTED_SYMBOLS = ["load", "save", "put", "putGroup", "pop", "list"];
+const EXPORTED_SYMBOLS = ["load", "save", "put", "putGroup", "pop", "list", "count"];
 const KEY = "tabgroupsbtn-stash";
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 const SessionStore = Cc["@mozilla.org/browser/sessionstore;1"].getService(Ci.nsISessionStore);
@@ -98,7 +98,7 @@ function list(win, groupId) {
   if (win.tabgroupsbtn && win.tabgroupsbtn.stash) {
     let stash = win.tabgroupsbtn.stash;
     let groupStash = stash[groupId];
-    if (typeof groupStash !== "undefined") {
+    if (groupStash !== undefined) {
       let urls = [];
       for (let url in groupStash) {
         let [label, ts] = groupStash[url];
@@ -109,4 +109,14 @@ function list(win, groupId) {
       return urls;
     }
   }
+}
+
+function count(win, groupId) {
+  if (win.tabgroupsbtn && win.tabgroupsbtn.stash) {
+    let stash = win.tabgroupsbtn.stash[groupId];
+    if (stash !== undefined) {
+      return Object.keys(stash).length;
+    }
+  }
+  return 0;
 }
