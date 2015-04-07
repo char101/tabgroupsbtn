@@ -85,7 +85,10 @@ function getGroupList(win, shortnames=false) {
   return groups;
 }
 
-function getGroup(win, groupid) getGroupItems(win).groupItem(groupid)
+function getGroup(win, groupid) {
+  win = win || getActiveWindow();
+  return getGroupItems(win).groupItem(groupid);
+}
 
 function getGroupCount(win) getGroupItems(win).groupItems.length
 
