@@ -15,6 +15,10 @@ toolbarpaletteitem[place="palette"] > #tabgroupsbtn-btn > #tabgroupsbtn-btn-plac
 toolbarpaletteitem > #tabgroupsbtn-btn > #tabgroupsbtn-btn-container {
   display: none;
 }
+#tabgroupsbtn-btn-menu {
+  padding-left: 2px !important;
+  padding-right: 0 !important;
+}
 #tabgroupsbtn-btn-menu > image {
   display: none;
 }
@@ -26,6 +30,7 @@ toolbarpaletteitem > #tabgroupsbtn-btn > #tabgroupsbtn-btn-container {
 }
 #tabgroupsbtn-btn-menu > label.toolbarbutton-text {
   font-weight: bold;
+  padding-right: 6px !important;
 }
 #tabgroupsbtn-btn-close > image {
   margin-top: 1px;
@@ -43,6 +48,11 @@ toolbarpaletteitem > #tabgroupsbtn-btn > #tabgroupsbtn-btn-container {
 }
 .tabgroupsbtn-btn-active {
   text-decoration: underline;
+}
+#TabsToolbar #tabgroupsbtn-btn-menu,
+#toolbar-menubar #tabgroupsbtn-btn-menu,
+#tabgroupsbtn-bar-toolbar #tabgroupsbtn-btn-menu {
+  padding-left: 6px !important;
 }
 #TabsToolbar #tabgroupsbtn-btn-menu > image,
 #toolbar-menubar #tabgroupsbtn-btn-menu > image,
@@ -127,4 +137,7 @@ toolbarpaletteitem > #tabgroupsbtn-bar > #tabgroupsbtn-bar-container {
 }
 .tabstoolbar-nomargin {
   margin-top: 0 !important;
+}
+.tabgroupsbtn-tab-closed label {
+  text-decoration: line-through;
 }

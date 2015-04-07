@@ -38,7 +38,9 @@
 		@hide-image();
 		@hide-dropmarker();
 		@show-label();
-		& > label.toolbarbutton-text { font-weight: bold; }
+		padding-left: 2px !important;
+		padding-right: 0 !important;
+		& > label.toolbarbutton-text { font-weight: bold; padding-right: 6px !important; }
 	}
 	&-close > image {
 		margin-top: 1px;
@@ -57,10 +59,13 @@
 	&-active { text-decoration: underline; }
 }
 #TabsToolbar, #toolbar-menubar, #tabgroupsbtn-bar-toolbar {
-	#tabgroupsbtn-btn-menu > image {
-		margin: 0 !important;
-		padding-left: 4px !important;
-		padding-right: 4px !important;
+	#tabgroupsbtn-btn-menu {
+		padding-left: 6px !important;
+		& > image {
+			margin: 0 !important;
+			padding-left: 4px !important;
+			padding-right: 4px !important;
+		}
 	}
 }
 
@@ -131,4 +136,9 @@
 // remove top margin from tabstoolbar when the tabgroupsbtn toolbar is above it
 .tabstoolbar-nomargin {
 	margin-top: 0 !important;
+}
+
+// closed tab menuitem
+.tabgroupsbtn-tab-closed label {
+	text-decoration: line-through;
 }

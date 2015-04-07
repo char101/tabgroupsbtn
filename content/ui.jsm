@@ -31,6 +31,22 @@ function showMergeMenu(popup, groupid) {
   }
 }
 
+function onTabClick(event, win, tab) {
+  if (event.button === 1) {
+    // handle middle click: close tab
+    let menuitem = event.target;
+    if (menuitem.disabled)
+      return;
+
+    // set menuitem disabled
+    menuitem.disabled = true;
+    menuitem.classList.add("tabgroupsbtn-tab-closed");
+
+    // close tab
+    win.gBrowser.removeTab(tab);
+  }
+}
+
 function showGroupContextMenu(popup, groupid=null) {
   let win = getActiveWindow();
   let doc = win.document;
@@ -57,16 +73,17 @@ function showGroupContextMenu(popup, groupid=null) {
   }
 
   // items in group
-  for (let ti of tabItems) {
-    let tab = ti.tab;
+  for (let i = 0, n = tabItems.length; i < n; ++i) {
+    let tab = tabItems[i].tab;
     let mi = createElement(doc, "menuitem", {
-        label: tab.label,
-        image: tab.image,
-        class: "menuitem-iconic" + (tab.hasAttribute("pending") ? " tabgroupsbtn-btn-pending" : "")
-      }, {
-        command: e => selectTab(win, tab)
-      }
-    );
+      value: `${groupid}.${i}`,
+      label: tab.label,
+      image: tab.image,
+      class: "menuitem-iconic" + (tab.hasAttribute("pending") ? " tabgroupsbtn-btn-pending" : "")
+    }, {
+      command: e => selectTab(win, tab),
+      click: e => onTabClick(e, win, tab)
+    });
     parent.appendChild(mi);
   }
 
