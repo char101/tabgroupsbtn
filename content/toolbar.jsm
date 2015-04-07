@@ -131,7 +131,7 @@ function refresh(win=null) {
         items.appendChild(tab);
 
         if (showTabCount) {
-          addBadge(doc, tab, group.getChildren().length, tabCountLeft, tabCountRight);
+          addBadge(doc, tab, group.getChildren().length, Stash.count(win, id), tabCountLeft, tabCountRight);
         }
       }
     } else {
