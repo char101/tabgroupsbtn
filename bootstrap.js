@@ -3,7 +3,7 @@
 const {utils: Cu, classes: Cc, interfaces: Ci} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 
-const Addon = {}, Buttons = {}, Toolbar = {}, Window = {}, Prefs = {};
+const Addon = {}, Buttons = {}, Toolbar = {}, Window = {}, Prefs = {}, TabGroups = {};
 
 function processWindow(win) {
   Cu.import("chrome://tabgroupsbtn/content/log.jsm");
@@ -28,6 +28,11 @@ function processWindow(win) {
                                   "}\n" +
                                   "this.selectedTab = tab;"]
     ]);
+
+  TabGroups.initPanorama(win).then(() => {
+    Buttons.refresh(win);
+    Toolbar.refresh(win);
+  });
 }
 
 function install(data, reason) {}
@@ -39,13 +44,16 @@ function uninstall(data, reason) {
 
 function startup(data, reason) {
   Cu.import("chrome://tabgroupsbtn/content/log.jsm");
-  logger.info("startup", reason);
-
   Cu.import("chrome://tabgroupsbtn/content/addon.jsm", Addon);
   Cu.import("chrome://tabgroupsbtn/content/toolbar.jsm", Toolbar);
   Cu.import("chrome://tabgroupsbtn/content/buttons.jsm", Buttons);
   Cu.import("chrome://tabgroupsbtn/content/window.jsm", Window);
   Cu.import("chrome://tabgroupsbtn/content/prefs.jsm", Prefs);
+  Cu.import("chrome://tabgroupsbtn/content/tabgroups.jsm", TabGroups);
+
+  Prefs.setDefaultPrefs();
+
+  logger.info("startup", reason);
 
   Addon.addStylesheet("style.css");
   Toolbar.registerWidgets();

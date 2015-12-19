@@ -27,26 +27,33 @@ const Window = Cu.import("chrome://tabgroupsbtn/content/window.jsm", {});
 const Stash = Cu.import("chrome://tabgroupsbtn/content/stash.jsm", {});
 
 function initPanorama(win=null) {
-  // logger.trace("initPanorama");
+  //logger.trace("tabgroups.jsm: initPanorama");
   if (win === null)
     win = getActiveWindow();
   if (! win)
     return;
-  return new Promise((next, err) => win.TabView._initFrame(() => {
-    let gi = getGroupItems(win);
-    if (gi) {
-      if (!win.tabgroupsbtn.panoramaLoaded) {
-        win.tabgroupsbtn.panoramaLoaded = true;
-        Stash.load(win);
-        Window.addTabContextMenu(win);
-        Window.addLinkContextMenu(win);
+  return new Promise((next, err) => {
+    var timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
+    var i = 0;
+    (function callback() {
+      //logger.trace('tabgroups.jsm: initPanorama callback');
+      let gi = getGroupItems(win);
+      if (gi) {
+        if (!win.tabgroupsbtn.panoramaLoaded) {
+          win.tabgroupsbtn.panoramaLoaded = true;
+          Stash.load(win);
+          Window.addTabContextMenu(win);
+          Window.addLinkContextMenu(win);
+        }
+        next();
+      } else if (++i < 10) {
+        timer.initWithCallback({notify: function() { win.TabView._initFrame(callback); }}, 100, Ci.nsITimer.TYPE_ONE_SHOT);
+      } else {
+        logger.warning("initPanorama failed");
+        err();
       }
-      next();
-    } else {
-      logger.warning("initPanorama failed");
-      err();
-    }
-  }));
+    })();
+  });
 }
 
 function getGroupItems(win) {
@@ -55,12 +62,12 @@ function getGroupItems(win) {
   }
   let tv = win.TabView;
   if (! tv) {
-    logger.error("win.TabView is undefined");
+    logger.error("getGroupItems: win.TabView is undefined");
     return;
   }
   let cw = tv.getContentWindow();
   if (! cw) {
-    logger.error("win.TabView.getContentWindow() is undefined");
+    logger.error("getGroupItems: win.TabView.getContentWindow() is undefined");
     logger.trace();
     return;
   }

@@ -31,10 +31,13 @@ function showMergeMenu(popup, groupid) {
   }
 }
 
+// called on mouse click on the tab menuitem on the group context menu
 function onTabClick(event, win, tab) {
+  // on middle click: close tab
   if (event.button === 1) {
-    // handle middle click: close tab
     let menuitem = event.target;
+
+    // already closed
     if (menuitem.disabled)
       return;
 

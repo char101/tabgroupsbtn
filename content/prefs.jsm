@@ -1,16 +1,54 @@
 "use strict";
 
-let EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "prefBranch",
   "getPref",
   "setPref",
+  "setDefaultPrefs"
 ];
 
 const Cu = Components.utils;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/devtools/Console.jsm");
 
-let prefBranch = Services.prefs.getBranch("extensions.tabgroupsbtn.");
+const PREF_BRANCH = "extensions.tabgroupsbtn.";
+const PREFS = {
+  "closebtn-disabled"  : false,
+  "newbtn-disabled"    : false,
+  "mouseover"          : false,
+  "bar.button"         : true,
+  "bar.position"       : "top-last",
+  "bar.collapsed"      : false,
+  "bar.no_separator"   : false,
+  "bar.tabcount"       : false,
+  "bar.tabcount-style" : "",
+  "clean-empty-tabs"   : false,
+  "skip-pending"       : false,
+  "log-level"          : 60,
+  "log-to-file"        : false,
+  "stash"              : false,
+  "stash-submenu-min"  : 0,
+  "tabs-submenu-min"   : 0
+}
+
+const prefBranch = Services.prefs.getBranch(PREF_BRANCH);
+
+function setDefaultPrefs() {
+  let branch = Services.prefs.getDefaultBranch(PREF_BRANCH);
+  for (let [k, v] in Iterator(PREFS)) {
+    switch (typeof v) {
+      case "boolean":
+        branch.setBoolPref(k, v);
+        break;
+      case "number":
+        branch.setIntPref(k, v);
+        break;
+      case "string":
+        branch.setCharPref(k, v);
+        break;
+    }
+  }
+}
 
 function getPref(key, defval=null) {
   switch (prefBranch.getPrefType(key)) {
@@ -21,27 +59,10 @@ function getPref(key, defval=null) {
     case prefBranch.PREF_INT:
       return prefBranch.getIntPref(key);
     case prefBranch.PREF_INVALID:
-      switch (key) {
-        case "closebtn-disabled": return false;
-        case "newbtn-disabled": return false;
-        case "mouseover": return false;
-        case "bar.button": return false;
-        case "bar.position": return "top-last";
-        case "bar.collapsed": return false;
-        case "bar.no_separator": return false;
-        case "bar.tabcount": return false;
-        case "bar.tabcount-style": return "";
-        case "clean-empty-tabs": return false;
-        case "skip-pending": return false;
-        case "log-level": return 60;
-        case "log-to-file": return false;
-        case "stash": return false;
-        case "stash-submenu-min": return 0;
-        case "tabs-submenu-min": return 0;
-        default:
-          console.log("tabgroupsbtn: Unknown preference: " + key);
-          return undefined;
-      }
+      if (PREFS.hasOwnProperty(key))
+        return PREFS[key];
+      console.log("tabgroupsbtn: Unknown preference: " + key);
+      return undefined;
   }
 }
 

@@ -118,6 +118,7 @@ function refresh(win=null) {
           class: "tabgroupsbtn-bar-tab",
           label: title,
           selected: active,
+          visuallyselected: active,
           value: id,
           context: "tabgroupsbtn-bar-context",
           tooltiptext: getTooltipText(group)
