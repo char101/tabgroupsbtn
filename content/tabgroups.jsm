@@ -39,7 +39,7 @@ function initPanorama(win=null) {
       //logger.trace('tabgroups.jsm: initPanorama callback');
       let gi = getGroupItems(win);
       if (gi) {
-        if (!win.tabgroupsbtn.panoramaLoaded) {
+        if (! win.tabgroupsbtn.panoramaLoaded) {
           win.tabgroupsbtn.panoramaLoaded = true;
           Stash.load(win);
           Window.addTabContextMenu(win);
@@ -47,7 +47,11 @@ function initPanorama(win=null) {
         }
         next();
       } else if (++i < 10) {
-        timer.initWithCallback({notify: function() { win.TabView._initFrame(callback); }}, 100, Ci.nsITimer.TYPE_ONE_SHOT);
+        timer.initWithCallback({
+          notify: function() {
+            win.TabView ? win.TabView._initFrame(callback) : callback();
+          }
+        }, 100, Ci.nsITimer.TYPE_ONE_SHOT);
       } else {
         logger.warning("initPanorama failed");
         err();
