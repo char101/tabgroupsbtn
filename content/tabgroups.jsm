@@ -98,6 +98,7 @@ function getGroupList(win, shortnames=false) {
 
 function getGroup(win, groupid) {
   win = win || getActiveWindow();
+  groupid = parseInt(groupid, 10);
   return getGroupItems(win).groupItem(groupid);
 }
 
